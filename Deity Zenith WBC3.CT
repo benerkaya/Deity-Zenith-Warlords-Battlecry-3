@@ -174,36 +174,36 @@ D.units = {
   [81]=0x584E4541, --AENX
   [82]=0x45504141, --AAPE
   [83]=0x48504141, --AAPH
-  [84]=0x584B4B41, --AKKX
-  [85]=0x58444541, --AEDX
-  [86]=0x58424541, --AEBX
-  [87]=0x584B5741, --AWKX
-  [88]=0x58414541, --AEAX
-  [89]=0x584E5741, --AWNX
-  [90]=0x58475741, --AWGX
-  [91]=0x58454541, --AEEX
-  [92]=0x58495741, --AWIX
-  [93]=0x584D5741, --AWMX
-  [94]=0x49524141, --AARI
-  [95]=0x48504141, --AAPH
-  [96]=0x58584541, --AEXX
-  [97]=0x50534141, --AASP
-  [98]=0x584A5741, --AWJX
-  [99]=0x58424541, --AEBX
-  [100]=0x58435741, --AWCX
-  [101]=0x58414541, --AEAX
-  [102]=0x584A4B41, --AKJX
-  [103]=0x58474B41, --AKGX
-  [104]=0x45444141, --AADE
-  [105]=0x584D4B41, --AKMX
-  [106]=0x58494B41, --AKIX
-  [107]=0x58434B41, --AKCX
-  [108]=0x41484141, --AAHA
-  [109]=0x4D494141, --AAIM
-  [110]=0x48504141, --AAPH
-  [111]=0x584C4B41, --AKLX
-  [112]=0x58495541, --AUIX
-  [113]=0x584E4B41, --AKNX
+  [84]=0x58444541, --AEDX
+  [85]=0x58424541, --AEBX
+  [86]=0x584B5741, --AWKX
+  [87]=0x58414541, --AEAX
+  [88]=0x584E5741, --AWNX
+  [89]=0x58475741, --AWGX
+  [90]=0x58454541, --AEEX
+  [91]=0x58495741, --AWIX
+  [92]=0x584D5741, --AWMX
+  [93]=0x49524141, --AARI
+  [94]=0x48504141, --AAPH
+  [95]=0x58584541, --AEXX
+  [96]=0x50534141, --AASP
+  [97]=0x584A5741, --AWJX
+  [98]=0x58424541, --AEBX
+  [99]=0x58435741, --AWCX
+  [100]=0x58414541, --AEAX
+  [101]=0x584A4B41, --AKJX
+  [102]=0x58474B41, --AKGX
+  [103]=0x45444141, --AADE
+  [104]=0x584D4B41, --AKMX
+  [105]=0x58494B41, --AKIX
+  [106]=0x58434B41, --AKCX
+  [107]=0x41484141, --AAHA
+  [108]=0x4D494141, --AAIM
+  [109]=0x48504141, --AAPH
+  [110]=0x584C4B41, --AKLX
+  [111]=0x58495541, --AUIX
+  [112]=0x584E4B41, --AKNX
+  [113]=0x584B4B41, --AKKX
   [114]=0x584F4B41, --AKOX
   [115]=0x58424241, --ABBX
   [116]=0x58424541, --AEBX
@@ -212,115 +212,117 @@ D.units = {
   [119]=0x584E4641, --AFNX
   [120]=0x484C4141, --AALH
   [121]=0x58424641, --AFBX
-  [122]=0x58494641, --AFIX
-  [123]=0x584A4641, --AFJX
-  [124]=0x58474141, --AAGX
-  [125]=0x58424141, --AABX
-  [126]=0x58534141, --AASX
-  [127]=0x584D4141, --AAMX
-  [128]=0x584E4141, --AANX
-  [129]=0x584A4141, --AAJX
-  [130]=0x58585541, --AUXX
-  [131]=0x58494141, --AAIX
-  [132]=0x584B5541, --AUKX
-  [133]=0x59574141, --AAWY
-  [134]=0x45444141, --AADE
-  [135]=0x42464141, --AAFB
-  [136]=0x41484141, --AAHA
-  [137]=0x4D494141, --AAIM
-  [138]=0x58435641, --AVCX
-  [139]=0x58425641, --AVBX
-  [140]=0x584A5641, --AVJX
-  [141]=0x58445641, --AVDX
-  [142]=0x4F534341, --ACSO
-  [143]=0x58495641, --AVIX
-  [144]=0x58475641, --AVGX
-  [145]=0x584D5041, --APMX
-  [146]=0x42474841, --AHGB
-  [147]=0x58445041, --APDX
-  [148]=0x584A4841, --AHJX
-  [149]=0x58434841, --AHCX
-  [150]=0x58424841, --AHBX
-  [151]=0x58494841, --AHIX
-  [152]=0x52474841, --AHGR
-  [153]=0x57474841, --AHGW
-  [154]=0x58424C41, --ALBX
-  [155]=0x46444141, --AADF
-  [156]=0x58434C41, --ALCX
-  [157]=0x58474C41, --ALGX
-  [158]=0x54504141, --AAPT
-  [159]=0x58494C41, --ALIX
-  [160]=0x584D4C41, --ALMX
-  [161]=0x58444C41, --ALDX
-  [162]=0x58454C41, --ALEX
-  [163]=0x58425241, --ARBX
-  [164]=0x584A5241, --ARJX
-  [165]=0x584D5241, --ARMX
-  [166]=0x58495241, --ARIX
-  [167]=0x58435241, --ARCX
-  [168]=0x58475241, --ARGX
-  [169]=0x41574141, --AAWA
-  [170]=0x59434741, --AGCY
-  [171]=0x4C464741, --AGFL
-  [172]=0x5A474741, --AGGZ
-  [173]=0x43504741, --AGPC
-  [174]=0x59484741, --AGHY
-  [175]=0x58474741, --AGGX
-  [176]=0x59504741, --AGPY
-  [177]=0x4C534741, --AGSL
-  [178]=0x50534741, --AGSP
-  [179]=0x58425541, --AUBX
-  [180]=0x41454141, --AAEA
-  [181]=0x45454141, --AAEE
-  [182]=0x46454141, --AAEF
-  [183]=0x57454141, --AAEW
-  [184]=0x43444141, --AADC
-  [185]=0x52444141, --AADR
-  [186]=0x55444141, --AADU
-  [187]=0x57444141, --AADW
-  [188]=0x42444141, --AADB
-  [189]=0x47444141, --AADG
-  [190]=0x58565441, --ATVX
-  [191]=0x584F5441, --ATOX
-  [192]=0x58415441, --ATAX
-  [193]=0x584C5441, --ATLX
-  [194]=0x58575441, --ATWX
-  [195]=0x584B5441, --ATKX
-  [196]=0x58445441, --ATDX
-  [197]=0x58455441, --ATEX
-  [198]=0x58475441, --ATGX
-  [199]=0x58555441, --ATUX
-  [200]=0x58525441, --ATRX
-  [201]=0x58485441, --ATHX
-  [202]=0x584D5441, --ATMX
-  [203]=0x58425441, --ATBX
-  [204]=0x58465441, --ATFX
-  [205]=0x58505441, --ATPX
-  [206]=0x41434341, --ACCA
-  [207]=0x4F434341, --ACCO
-  [208]=0x59454141, --AAEY
-  [209]=0x4F474341, --ACGO
-  [210]=0x58585841, --AXXX
-  [211]=0x45504341, --ACPE
-  [212]=0x45534341, --ACSE
-  [213]=0x55544341, --ACTU
-  [214]=0x58484841, --AHHX
-  [215]=0x58484441, --ADHX
-  [216]=0x58485541, --AUHX
-  [217]=0x58484D41, --AMHX
-  [218]=0x58484241, --ABHX
-  [219]=0x58484F41, --AOHX
-  [220]=0x58484541, --AEHX
-  [221]=0x58485741, --AWHX
-  [222]=0x58484B41, --AKHX
-  [223]=0x58484641, --AFHX
-  [224]=0x58484141, --AAHX
-  [225]=0x58485641, --AVHX
-  [226]=0x58485241, --ARHX
-  [227]=0x30484841, --AHH0
-  [228]=0x31484841, --AHH1
-  [229]=0x58484C41, --ALHX
-  [230]=0x58485041, --APHX
+  [122]=0x58584541, --AEXX
+  [123]=0x58494641, --AFIX
+  [124]=0x50534141, --AASP
+  [125]=0x584A4641, --AFJX
+  [126]=0x58474141, --AAGX
+  [127]=0x58424141, --AABX
+  [128]=0x58534141, --AASX
+  [129]=0x584D4141, --AAMX
+  [130]=0x584E4141, --AANX
+  [131]=0x584A4141, --AAJX
+  [132]=0x58585541, --AUXX
+  [133]=0x58494141, --AAIX
+  [134]=0x584B5541, --AUKX
+  [135]=0x59574141, --AAWY
+  [136]=0x45444141, --AADE
+  [137]=0x42464141, --AAFB
+  [138]=0x41484141, --AAHA
+  [139]=0x4D494141, --AAIM
+  [140]=0x58435641, --AVCX
+  [141]=0x58425641, --AVBX
+  [142]=0x584A5641, --AVJX
+  [143]=0x58445641, --AVDX
+  [144]=0x4F534341, --ACSO
+  [145]=0x58495641, --AVIX
+  [146]=0x58475641, --AVGX
+  [147]=0x584D5041, --APMX
+  [148]=0x42474841, --AHGB
+  [149]=0x58445041, --APDX
+  [150]=0x584A4841, --AHJX
+  [151]=0x58434841, --AHCX
+  [152]=0x58424841, --AHBX
+  [153]=0x58494841, --AHIX
+  [154]=0x52474841, --AHGR
+  [155]=0x57474841, --AHGW
+  [156]=0x58424C41, --ALBX
+  [157]=0x46444141, --AADF
+  [158]=0x58434C41, --ALCX
+  [159]=0x58474C41, --ALGX
+  [160]=0x54504141, --AAPT
+  [161]=0x58494C41, --ALIX
+  [162]=0x584D4C41, --ALMX
+  [163]=0x58444C41, --ALDX
+  [164]=0x58454C41, --ALEX
+  [165]=0x58425241, --ARBX
+  [166]=0x584A5241, --ARJX
+  [167]=0x584D5241, --ARMX
+  [168]=0x58495241, --ARIX
+  [169]=0x58435241, --ARCX
+  [170]=0x58475241, --ARGX
+  [171]=0x41574141, --AAWA
+  [172]=0x59434741, --AGCY
+  [173]=0x4C464741, --AGFL
+  [174]=0x5A474741, --AGGZ
+  [175]=0x43504741, --AGPC
+  [176]=0x59484741, --AGHY
+  [177]=0x58474741, --AGGX
+  [178]=0x59504741, --AGPY
+  [179]=0x4C534741, --AGSL
+  [180]=0x50534741, --AGSP
+  [181]=0x58425541, --AUBX
+  [182]=0x41454141, --AAEA
+  [183]=0x45454141, --AAEE
+  [184]=0x46454141, --AAEF
+  [185]=0x57454141, --AAEW
+  [186]=0x43444141, --AADC
+  [187]=0x52444141, --AADR
+  [188]=0x55444141, --AADU
+  [189]=0x57444141, --AADW
+  [190]=0x42444141, --AADB
+  [191]=0x47444141, --AADG
+  [192]=0x58565441, --ATVX
+  [193]=0x584F5441, --ATOX
+  [194]=0x58415441, --ATAX
+  [195]=0x584C5441, --ATLX
+  [196]=0x58575441, --ATWX
+  [197]=0x584B5441, --ATKX
+  [198]=0x58445441, --ATDX
+  [199]=0x58455441, --ATEX
+  [200]=0x58475441, --ATGX
+  [201]=0x58555441, --ATUX
+  [202]=0x58525441, --ATRX
+  [203]=0x58485441, --ATHX
+  [204]=0x584D5441, --ATMX
+  [205]=0x58425441, --ATBX
+  [206]=0x58465441, --ATFX
+  [207]=0x58505441, --ATPX
+  [208]=0x41434341, --ACCA
+  [209]=0x4F434341, --ACCO
+  [210]=0x59454141, --AAEY
+  [211]=0x4F474341, --ACGO
+  [212]=0x58585841, --AXXX
+  [213]=0x45504341, --ACPE
+  [214]=0x45534341, --ACSE
+  [215]=0x55544341, --ACTU
+  [216]=0x58484841, --AHHX
+  [217]=0x58484441, --ADHX
+  [218]=0x58485541, --AUHX
+  [219]=0x58484D41, --AMHX
+  [220]=0x58484241, --ABHX
+  [221]=0x58484F41, --AOHX
+  [222]=0x58484541, --AEHX
+  [223]=0x58485741, --AWHX
+  [224]=0x58484B41, --AKHX
+  [225]=0x58484641, --AFHX
+  [226]=0x58484141, --AAHX
+  [227]=0x58485641, --AVHX
+  [228]=0x58485241, --ARHX
+  [229]=0x30484841, --AHH0
+  [230]=0x31484841, --AHH1
+  [231]=0x58484C41, --ALHX
+  [232]=0x58485041, --APHX
 }
 -- building list (index = Building dropdown value)
 D.blds = {
@@ -714,36 +716,36 @@ D.unitList = [==[
 81:High Elf: Mystic
 82:High Elf: Pegasus
 83:High Elf: Phoenix
-84:High Elf: Spider
-85:High Elf: Unicorn
-86:High Elf: Wisp
-87:Wood Elf: Ancient Treant
-88:Wood Elf: Ancient Wisp
-89:Wood Elf: Druid
-90:Wood Elf: Dryad
-91:Wood Elf: Elven Hunter
-92:Wood Elf: Forestguard
-93:Wood Elf: Gladewarden
-94:Wood Elf: Griffon
-95:Wood Elf: Phoenix
-96:Wood Elf: Pixie
-97:Wood Elf: Sprite
-98:Wood Elf: Treant
-99:Wood Elf: Wisp
-100:Wood Elf: Woodrider
-101:Dark Elf: Ancient Wisp
-102:Dark Elf: Assassin
-103:Dark Elf: Blackguard
-104:Dark Elf: Daemon
-105:Dark Elf: Dark Archer
-106:Dark Elf: Dark Infantry
-107:Dark Elf: Dark Rider
-108:Dark Elf: Harpy
-109:Dark Elf: Imp
-110:Dark Elf: Phoenix
-111:Dark Elf: Queen Spider
-112:Dark Elf: Skeleton
-113:Dark Elf: Sorceror
+84:High Elf: Unicorn
+85:High Elf: Wisp
+86:Wood Elf: Ancient Treant
+87:Wood Elf: Ancient Wisp
+88:Wood Elf: Druid
+89:Wood Elf: Dryad
+90:Wood Elf: Elven Hunter
+91:Wood Elf: Forestguard
+92:Wood Elf: Gladewarden
+93:Wood Elf: Griffon
+94:Wood Elf: Phoenix
+95:Wood Elf: Pixie
+96:Wood Elf: Sprite
+97:Wood Elf: Treant
+98:Wood Elf: Wisp
+99:Wood Elf: Woodrider
+100:Dark Elf: Ancient Wisp
+101:Dark Elf: Assassin
+102:Dark Elf: Blackguard
+103:Dark Elf: Daemon
+104:Dark Elf: Dark Archer
+105:Dark Elf: Dark Infantry
+106:Dark Elf: Dark Rider
+107:Dark Elf: Harpy
+108:Dark Elf: Imp
+109:Dark Elf: Phoenix
+110:Dark Elf: Queen Spider
+111:Dark Elf: Skeleton
+112:Dark Elf: Sorceror
+113:Dark Elf: Spider
 114:Dark Elf: Spider Priestess
 115:Dark Elf: Thrall
 116:Dark Elf: Wisp
@@ -752,115 +754,117 @@ D.unitList = [==[
 119:Fey: Leprechaun
 120:Fey: Lightning Hawk
 121:Fey: Oakman
-122:Fey: Spriggan
-123:Fey: Sylph
-124:Dark Dwarf: Bronze Golem
-125:Dark Dwarf: Engineer
-126:Dark Dwarf: Firebomb
-127:Dark Dwarf: Flame Cannon
-128:Dark Dwarf: Hellbore
-129:Dark Dwarf: Iron Golem
-130:Dark Dwarf: Shadow
-131:Dark Dwarf: Stone Golem
-132:Dark Dwarf: Wraith
-133:Dark Dwarf: Wyvern
-134:Daemon: Daemon
-135:Daemon: Firebat
-136:Daemon: Harpy
-137:Daemon: Imp
-138:Daemon: Nightmare
-139:Daemon: Quasit
-140:Daemon: Reaper
-141:Daemon: Salamander
-142:Daemon: Soul
-143:Daemon: Succubus
-144:Daemon: Summoner
-145:Empire: Archer
-146:Empire: Black Mage
-147:Empire: Elephant
-148:Empire: Halberdier
-149:Empire: Mercenary
-150:Empire: Peasant
-151:Empire: Pikeman
-152:Empire: Red Mage
-153:Empire: White Mage
-154:Ssrathi: Chameleon
-155:Ssrathi: Dragonfly
-156:Ssrathi: Lizard Rider
-157:Ssrathi: Naga
-158:Ssrathi: Pterodactyl
-159:Ssrathi: Snakeman
-160:Ssrathi: Snakepriest
-161:Ssrathi: Triceratops
-162:Ssrathi: Tyrannosaurus
-163:Swarm: Giant Ant
-164:Swarm: Husk
-165:Swarm: Scarab
-166:Swarm: Scorpion
-167:Swarm: Scorpionman
-168:Swarm: Scorpionpriest
-169:Swarm: Wasp
-170:Plaguelords: Cryohydra
-171:Plaguelords: Eye of Flame
-172:Plaguelords: Gazer
-173:Plaguelords: Ghoul
-174:Plaguelords: Hydra
-175:Plaguelords: Plague Priest
-176:Plaguelords: Pyrohydra
-177:Plaguelords: Slime
-178:Plaguelords: Spore
-179:Plaguelords: Zombie
-180:Elementals: Air Elemental
-181:Elementals: Earth Elemental
-182:Elementals: Fire Elemental
-183:Elementals: Water Elemental
-184:Dragons: Celestial Dragon
-185:Dragons: Dragon
-186:Dragons: Dragonliche
-187:Dragons: Frost Dragon
-188:Dragons: Storm Dragon
-189:Dragons: Swamp Dragon
-190:Titans: Balora
-191:Titans: Gornak Elfeater
-192:Titans: Grond
-193:Titans: Iriki
-194:Titans: Ironbark
-195:Titans: Kargoth
-196:Titans: King Khalid
-197:Titans: King Lunarion
-198:Titans: Lord Antharg
-199:Titans: Lord Bane
-200:Titans: Lord Melkor
-201:Titans: Sirian
-202:Titans: Skull of Sartek
-203:Titans: Tempest
-204:Titans: The Forestmaster
-205:Titans: The Lion Throne
-206:Neutral: Camel
-207:Neutral: Cow
-208:Neutral: Eye of Oros
-209:Neutral: Goose
-210:Neutral: Guardian Skull
-211:Neutral: Penguin
-212:Neutral: Seal
-213:Neutral: Turtle
-214:Hero: Knight Hero
-215:Hero: Dwarf Hero
-216:Hero: Undead Hero
-217:Hero: Barbarian Hero
-218:Hero: Minotaur Hero
-219:Hero: Orc Hero
-220:Hero: High Elf Hero
-221:Hero: Wood Elf Hero
-222:Hero: Dark Elf Hero
-223:Hero: Fey Hero
-224:Hero: Dark Dwarf Hero
-225:Hero: Daemon Hero
-226:Hero: Swarm Hero
-227:Hero: Good Wizard Hero
-228:Hero: Evil Wizard Hero
-229:Hero: Ssrathi Hero
-230:Hero: Imperial Hero
+122:Fey: Pixie
+123:Fey: Spriggan
+124:Fey: Sprite
+125:Fey: Sylph
+126:Dark Dwarf: Bronze Golem
+127:Dark Dwarf: Engineer
+128:Dark Dwarf: Firebomb
+129:Dark Dwarf: Flame Cannon
+130:Dark Dwarf: Hellbore
+131:Dark Dwarf: Iron Golem
+132:Dark Dwarf: Shadow
+133:Dark Dwarf: Stone Golem
+134:Dark Dwarf: Wraith
+135:Dark Dwarf: Wyvern
+136:Daemon: Daemon
+137:Daemon: Firebat
+138:Daemon: Harpy
+139:Daemon: Imp
+140:Daemon: Nightmare
+141:Daemon: Quasit
+142:Daemon: Reaper
+143:Daemon: Salamander
+144:Daemon: Soul
+145:Daemon: Succubus
+146:Daemon: Summoner
+147:Empire: Archer
+148:Empire: Black Mage
+149:Empire: Elephant
+150:Empire: Halberdier
+151:Empire: Mercenary
+152:Empire: Peasant
+153:Empire: Pikeman
+154:Empire: Red Mage
+155:Empire: White Mage
+156:Ssrathi: Chameleon
+157:Ssrathi: Dragonfly
+158:Ssrathi: Lizard Rider
+159:Ssrathi: Naga
+160:Ssrathi: Pterodactyl
+161:Ssrathi: Snakeman
+162:Ssrathi: Snakepriest
+163:Ssrathi: Triceratops
+164:Ssrathi: Tyrannosaurus
+165:Swarm: Giant Ant
+166:Swarm: Husk
+167:Swarm: Scarab
+168:Swarm: Scorpion
+169:Swarm: Scorpionman
+170:Swarm: Scorpionpriest
+171:Swarm: Wasp
+172:Plaguelords: Cryohydra
+173:Plaguelords: Eye of Flame
+174:Plaguelords: Gazer
+175:Plaguelords: Ghoul
+176:Plaguelords: Hydra
+177:Plaguelords: Plague Priest
+178:Plaguelords: Pyrohydra
+179:Plaguelords: Slime
+180:Plaguelords: Spore
+181:Plaguelords: Zombie
+182:Elementals: Air Elemental
+183:Elementals: Earth Elemental
+184:Elementals: Fire Elemental
+185:Elementals: Water Elemental
+186:Dragons: Celestial Dragon
+187:Dragons: Dragon
+188:Dragons: Dragonliche
+189:Dragons: Frost Dragon
+190:Dragons: Storm Dragon
+191:Dragons: Swamp Dragon
+192:Titans: Balora
+193:Titans: Gornak Elfeater
+194:Titans: Grond
+195:Titans: Iriki
+196:Titans: Ironbark
+197:Titans: Kargoth
+198:Titans: King Khalid
+199:Titans: King Lunarion
+200:Titans: Lord Antharg
+201:Titans: Lord Bane
+202:Titans: Lord Melkor
+203:Titans: Sirian
+204:Titans: Skull of Sartek
+205:Titans: Tempest
+206:Titans: The Forestmaster
+207:Titans: The Lion Throne
+208:Neutral: Camel
+209:Neutral: Cow
+210:Neutral: Eye of Oros
+211:Neutral: Goose
+212:Neutral: Guardian Skull
+213:Neutral: Penguin
+214:Neutral: Seal
+215:Neutral: Turtle
+216:Hero: Knight Hero
+217:Hero: Dwarf Hero
+218:Hero: Undead Hero
+219:Hero: Barbarian Hero
+220:Hero: Minotaur Hero
+221:Hero: Orc Hero
+222:Hero: High Elf Hero
+223:Hero: Wood Elf Hero
+224:Hero: Dark Elf Hero
+225:Hero: Fey Hero
+226:Hero: Dark Dwarf Hero
+227:Hero: Daemon Hero
+228:Hero: Swarm Hero
+229:Hero: Good Wizard Hero
+230:Hero: Evil Wizard Hero
+231:Hero: Ssrathi Hero
+232:Hero: Imperial Hero
 ]==]
 D.bldList = [==[
 0:Knight: Cathedral
@@ -2053,36 +2057,36 @@ unregistersymbol(dzlhero)
 81:High Elf: Mystic
 82:High Elf: Pegasus
 83:High Elf: Phoenix
-84:High Elf: Spider
-85:High Elf: Unicorn
-86:High Elf: Wisp
-87:Wood Elf: Ancient Treant
-88:Wood Elf: Ancient Wisp
-89:Wood Elf: Druid
-90:Wood Elf: Dryad
-91:Wood Elf: Elven Hunter
-92:Wood Elf: Forestguard
-93:Wood Elf: Gladewarden
-94:Wood Elf: Griffon
-95:Wood Elf: Phoenix
-96:Wood Elf: Pixie
-97:Wood Elf: Sprite
-98:Wood Elf: Treant
-99:Wood Elf: Wisp
-100:Wood Elf: Woodrider
-101:Dark Elf: Ancient Wisp
-102:Dark Elf: Assassin
-103:Dark Elf: Blackguard
-104:Dark Elf: Daemon
-105:Dark Elf: Dark Archer
-106:Dark Elf: Dark Infantry
-107:Dark Elf: Dark Rider
-108:Dark Elf: Harpy
-109:Dark Elf: Imp
-110:Dark Elf: Phoenix
-111:Dark Elf: Queen Spider
-112:Dark Elf: Skeleton
-113:Dark Elf: Sorceror
+84:High Elf: Unicorn
+85:High Elf: Wisp
+86:Wood Elf: Ancient Treant
+87:Wood Elf: Ancient Wisp
+88:Wood Elf: Druid
+89:Wood Elf: Dryad
+90:Wood Elf: Elven Hunter
+91:Wood Elf: Forestguard
+92:Wood Elf: Gladewarden
+93:Wood Elf: Griffon
+94:Wood Elf: Phoenix
+95:Wood Elf: Pixie
+96:Wood Elf: Sprite
+97:Wood Elf: Treant
+98:Wood Elf: Wisp
+99:Wood Elf: Woodrider
+100:Dark Elf: Ancient Wisp
+101:Dark Elf: Assassin
+102:Dark Elf: Blackguard
+103:Dark Elf: Daemon
+104:Dark Elf: Dark Archer
+105:Dark Elf: Dark Infantry
+106:Dark Elf: Dark Rider
+107:Dark Elf: Harpy
+108:Dark Elf: Imp
+109:Dark Elf: Phoenix
+110:Dark Elf: Queen Spider
+111:Dark Elf: Skeleton
+112:Dark Elf: Sorceror
+113:Dark Elf: Spider
 114:Dark Elf: Spider Priestess
 115:Dark Elf: Thrall
 116:Dark Elf: Wisp
@@ -2091,115 +2095,117 @@ unregistersymbol(dzlhero)
 119:Fey: Leprechaun
 120:Fey: Lightning Hawk
 121:Fey: Oakman
-122:Fey: Spriggan
-123:Fey: Sylph
-124:Dark Dwarf: Bronze Golem
-125:Dark Dwarf: Engineer
-126:Dark Dwarf: Firebomb
-127:Dark Dwarf: Flame Cannon
-128:Dark Dwarf: Hellbore
-129:Dark Dwarf: Iron Golem
-130:Dark Dwarf: Shadow
-131:Dark Dwarf: Stone Golem
-132:Dark Dwarf: Wraith
-133:Dark Dwarf: Wyvern
-134:Daemon: Daemon
-135:Daemon: Firebat
-136:Daemon: Harpy
-137:Daemon: Imp
-138:Daemon: Nightmare
-139:Daemon: Quasit
-140:Daemon: Reaper
-141:Daemon: Salamander
-142:Daemon: Soul
-143:Daemon: Succubus
-144:Daemon: Summoner
-145:Empire: Archer
-146:Empire: Black Mage
-147:Empire: Elephant
-148:Empire: Halberdier
-149:Empire: Mercenary
-150:Empire: Peasant
-151:Empire: Pikeman
-152:Empire: Red Mage
-153:Empire: White Mage
-154:Ssrathi: Chameleon
-155:Ssrathi: Dragonfly
-156:Ssrathi: Lizard Rider
-157:Ssrathi: Naga
-158:Ssrathi: Pterodactyl
-159:Ssrathi: Snakeman
-160:Ssrathi: Snakepriest
-161:Ssrathi: Triceratops
-162:Ssrathi: Tyrannosaurus
-163:Swarm: Giant Ant
-164:Swarm: Husk
-165:Swarm: Scarab
-166:Swarm: Scorpion
-167:Swarm: Scorpionman
-168:Swarm: Scorpionpriest
-169:Swarm: Wasp
-170:Plaguelords: Cryohydra
-171:Plaguelords: Eye of Flame
-172:Plaguelords: Gazer
-173:Plaguelords: Ghoul
-174:Plaguelords: Hydra
-175:Plaguelords: Plague Priest
-176:Plaguelords: Pyrohydra
-177:Plaguelords: Slime
-178:Plaguelords: Spore
-179:Plaguelords: Zombie
-180:Elementals: Air Elemental
-181:Elementals: Earth Elemental
-182:Elementals: Fire Elemental
-183:Elementals: Water Elemental
-184:Dragons: Celestial Dragon
-185:Dragons: Dragon
-186:Dragons: Dragonliche
-187:Dragons: Frost Dragon
-188:Dragons: Storm Dragon
-189:Dragons: Swamp Dragon
-190:Titans: Balora
-191:Titans: Gornak Elfeater
-192:Titans: Grond
-193:Titans: Iriki
-194:Titans: Ironbark
-195:Titans: Kargoth
-196:Titans: King Khalid
-197:Titans: King Lunarion
-198:Titans: Lord Antharg
-199:Titans: Lord Bane
-200:Titans: Lord Melkor
-201:Titans: Sirian
-202:Titans: Skull of Sartek
-203:Titans: Tempest
-204:Titans: The Forestmaster
-205:Titans: The Lion Throne
-206:Neutral: Camel
-207:Neutral: Cow
-208:Neutral: Eye of Oros
-209:Neutral: Goose
-210:Neutral: Guardian Skull
-211:Neutral: Penguin
-212:Neutral: Seal
-213:Neutral: Turtle
-214:Hero: Knight Hero
-215:Hero: Dwarf Hero
-216:Hero: Undead Hero
-217:Hero: Barbarian Hero
-218:Hero: Minotaur Hero
-219:Hero: Orc Hero
-220:Hero: High Elf Hero
-221:Hero: Wood Elf Hero
-222:Hero: Dark Elf Hero
-223:Hero: Fey Hero
-224:Hero: Dark Dwarf Hero
-225:Hero: Daemon Hero
-226:Hero: Swarm Hero
-227:Hero: Good Wizard Hero
-228:Hero: Evil Wizard Hero
-229:Hero: Ssrathi Hero
-230:Hero: Imperial Hero
+122:Fey: Pixie
+123:Fey: Spriggan
+124:Fey: Sprite
+125:Fey: Sylph
+126:Dark Dwarf: Bronze Golem
+127:Dark Dwarf: Engineer
+128:Dark Dwarf: Firebomb
+129:Dark Dwarf: Flame Cannon
+130:Dark Dwarf: Hellbore
+131:Dark Dwarf: Iron Golem
+132:Dark Dwarf: Shadow
+133:Dark Dwarf: Stone Golem
+134:Dark Dwarf: Wraith
+135:Dark Dwarf: Wyvern
+136:Daemon: Daemon
+137:Daemon: Firebat
+138:Daemon: Harpy
+139:Daemon: Imp
+140:Daemon: Nightmare
+141:Daemon: Quasit
+142:Daemon: Reaper
+143:Daemon: Salamander
+144:Daemon: Soul
+145:Daemon: Succubus
+146:Daemon: Summoner
+147:Empire: Archer
+148:Empire: Black Mage
+149:Empire: Elephant
+150:Empire: Halberdier
+151:Empire: Mercenary
+152:Empire: Peasant
+153:Empire: Pikeman
+154:Empire: Red Mage
+155:Empire: White Mage
+156:Ssrathi: Chameleon
+157:Ssrathi: Dragonfly
+158:Ssrathi: Lizard Rider
+159:Ssrathi: Naga
+160:Ssrathi: Pterodactyl
+161:Ssrathi: Snakeman
+162:Ssrathi: Snakepriest
+163:Ssrathi: Triceratops
+164:Ssrathi: Tyrannosaurus
+165:Swarm: Giant Ant
+166:Swarm: Husk
+167:Swarm: Scarab
+168:Swarm: Scorpion
+169:Swarm: Scorpionman
+170:Swarm: Scorpionpriest
+171:Swarm: Wasp
+172:Plaguelords: Cryohydra
+173:Plaguelords: Eye of Flame
+174:Plaguelords: Gazer
+175:Plaguelords: Ghoul
+176:Plaguelords: Hydra
+177:Plaguelords: Plague Priest
+178:Plaguelords: Pyrohydra
+179:Plaguelords: Slime
+180:Plaguelords: Spore
+181:Plaguelords: Zombie
+182:Elementals: Air Elemental
+183:Elementals: Earth Elemental
+184:Elementals: Fire Elemental
+185:Elementals: Water Elemental
+186:Dragons: Celestial Dragon
+187:Dragons: Dragon
+188:Dragons: Dragonliche
+189:Dragons: Frost Dragon
+190:Dragons: Storm Dragon
+191:Dragons: Swamp Dragon
+192:Titans: Balora
+193:Titans: Gornak Elfeater
+194:Titans: Grond
+195:Titans: Iriki
+196:Titans: Ironbark
+197:Titans: Kargoth
+198:Titans: King Khalid
+199:Titans: King Lunarion
+200:Titans: Lord Antharg
+201:Titans: Lord Bane
+202:Titans: Lord Melkor
+203:Titans: Sirian
+204:Titans: Skull of Sartek
+205:Titans: Tempest
+206:Titans: The Forestmaster
+207:Titans: The Lion Throne
+208:Neutral: Camel
+209:Neutral: Cow
+210:Neutral: Eye of Oros
+211:Neutral: Goose
+212:Neutral: Guardian Skull
+213:Neutral: Penguin
+214:Neutral: Seal
+215:Neutral: Turtle
+216:Hero: Knight Hero
+217:Hero: Dwarf Hero
+218:Hero: Undead Hero
+219:Hero: Barbarian Hero
+220:Hero: Minotaur Hero
+221:Hero: Orc Hero
+222:Hero: High Elf Hero
+223:Hero: Wood Elf Hero
+224:Hero: Dark Elf Hero
+225:Hero: Fey Hero
+226:Hero: Dark Dwarf Hero
+227:Hero: Daemon Hero
+228:Hero: Swarm Hero
+229:Hero: Good Wizard Hero
+230:Hero: Evil Wizard Hero
+231:Hero: Ssrathi Hero
+232:Hero: Imperial Hero
 </DropDownList><ShowAsSigned>1</ShowAsSigned><VariableType>4 Bytes</VariableType><Address>dzpick</Address></CheatEntry><CheatEntry><ID>38</ID><Description>"Side"</Description><DropDownList DescriptionOnly="1" DisplayValueAsItem="1">-1:My side
 0:Side 0
 1:Side 1
