@@ -1,0 +1,303 @@
+0	BPCA	Knight: Cathedral
+1	BPFL	Knight: Fletcher
+2	BPSB	Knight: Stables
+3	BPSM	Knight: Smithy
+4	BPMA	Knight: Market
+5	BPSS	Knight: Shrine of the Sword
+6	BKK0	Knight: Keep (level 1)
+7	BKK1	Knight: Keep (level 2)
+8	BKK2	Knight: Keep (level 3)
+9	BKK3	Knight: Keep (level 4)
+10	BKK4	Knight: Keep (level 5)
+11	BAGA	Knight: Garrison
+12	BAV0	Knight: Eyrie (level 1)
+13	BAV1	Knight: Eyrie (level 2)
+14	BAV2	Knight: Eyrie (level 3)
+15	BAAR	Dwarf: Armory
+16	BPFO	Dwarf: Foundry
+17	BWMO	Dwarf: Mortar
+18	BKD0	Dwarf: Citadel (level 1)
+19	BKD1	Dwarf: Citadel (level 2)
+20	BKD2	Dwarf: Citadel (level 3)
+21	BKD3	Dwarf: Citadel (level 4)
+22	BKD4	Dwarf: Citadel (level 5)
+23	BPBR	Dwarf: Brewery
+24	BPTP	Dwarf: Trading Post
+25	BPWS	Dwarf: Workshop
+26	BPCL	Dwarf: College
+27	BAV0	Dwarf: Eyrie (level 1)
+28	BAV1	Dwarf: Eyrie (level 2)
+29	BAV2	Dwarf: Eyrie (level 3)
+30	BAGR	Undead: Gravestone
+31	BAE0	Undead: Brood (level 1)
+32	BAE1	Undead: Brood (level 2)
+33	BAE2	Undead: Brood (level 3)
+34	BPBA	Undead: Barrow
+35	BKU0	Undead: Deathspire (level 1)
+36	BKU1	Undead: Deathspire (level 2)
+37	BKU2	Undead: Deathspire (level 3)
+38	BKU3	Undead: Deathspire (level 4)
+39	BKU4	Undead: Deathspire (level 5)
+40	BPBL	Undead: Black Library
+41	BAGY	Undead: Graveyard
+42	BPAS	Undead: Altar of Shadows
+43	BPCG	Undead: Cage
+44	BPDM	Undead: Dark Mill
+45	BPST	Barbarian: Scout Tower
+46	BPCO	Barbarian: Corral
+47	BKB0	Barbarian: Fortress (level 1)
+48	BKB1	Barbarian: Fortress (level 2)
+49	BKB2	Barbarian: Fortress (level 3)
+50	BKB3	Barbarian: Fortress (level 4)
+51	BKB4	Barbarian: Fortress (level 5)
+52	BACA	Barbarian: Camp
+53	BPAT	Barbarian: Altar of Tempest
+54	BPHU	Barbarian: Chieftain's Hut
+55	BPMI	Barbarian: Mill
+56	BAN0	Barbarian: Nest (level 1)
+57	BAN1	Barbarian: Nest (level 2)
+58	BAN2	Barbarian: Nest (level 3)
+59	BKH0	Minotaur: Ziggurat (level 1)
+60	BKH1	Minotaur: Ziggurat (level 2)
+61	BKH2	Minotaur: Ziggurat (level 3)
+62	BKH3	Minotaur: Ziggurat (level 4)
+63	BKH4	Minotaur: Ziggurat (level 5)
+64	BPAR	Minotaur: Arena
+65	BPDA	Minotaur: Altar of Sartek
+66	BPIN	Minotaur: Ale Store
+67	BPHG	Minotaur: Henge
+68	BPIW	Minotaur: Ironworks
+69	BPLO	Minotaur: Lookout
+70	BAPN	Minotaur: Pen
+71	BAV0	Minotaur: Eyrie (level 1)
+72	BAV1	Minotaur: Eyrie (level 2)
+73	BAV2	Minotaur: Eyrie (level 3)
+74	BPOH	Orc: Hovel
+75	BAE0	Orc: Brood (level 1)
+76	BAE1	Orc: Brood (level 2)
+77	BAE2	Orc: Brood (level 3)
+78	BWTP	Orc: Totem
+79	BKO0	Orc: Orchold (level 1)
+80	BKO1	Orc: Orchold (level 2)
+81	BKO2	Orc: Orchold (level 3)
+82	BKO3	Orc: Orchold (level 4)
+83	BKO4	Orc: Orchold (level 5)
+84	BABY	Orc: Battleyard
+85	BAGT	Orc: Goblin Tower
+86	BAPR	Orc: Prison
+87	BASM	Orc: Shaman's Hut
+88	BABP	Orc: Beast Pit
+89	BPHE	High Elf: Healer
+90	BPDS	High Elf: Dragon Shrine
+91	BKE0	High Elf: White Tower (level 1)
+92	BKE1	High Elf: White Tower (level 2)
+93	BKE2	High Elf: White Tower (level 3)
+94	BKE3	High Elf: White Tower (level 4)
+95	BKE4	High Elf: White Tower (level 5)
+96	BATG	High Elf: Tree of Gold
+97	BPME	High Elf: Merchant
+98	BPDI	High Elf: Dragonstone
+99	BASR	High Elf: Shooting Range
+100	BPMT	High Elf: Tower of the Moon
+101	BAN0	High Elf: Nest (level 1)
+102	BAN1	High Elf: Nest (level 2)
+103	BAN2	High Elf: Nest (level 3)
+104	BATL	Wood Elf: Tree of Life
+105	BPWT	Wood Elf: White Tree
+106	BKW0	Wood Elf: Haven (level 1)
+107	BKW1	Wood Elf: Haven (level 2)
+108	BKW2	Wood Elf: Haven (level 3)
+109	BKW3	Wood Elf: Haven (level 4)
+110	BKW4	Wood Elf: Haven (level 5)
+111	BPFT	Wood Elf: Forest Tower
+112	BPHO	Wood Elf: Healing Orb
+113	BPRG	Wood Elf: Rangers' Guild
+114	BPHS	Wood Elf: Hostel
+115	BPMW	Wood Elf: Magic Well
+116	BAN0	Wood Elf: Nest (level 1)
+117	BAN1	Wood Elf: Nest (level 2)
+118	BAN2	Wood Elf: Nest (level 3)
+119	BKT0	Dark Elf: Dark Tower (level 1)
+120	BKT1	Dark Elf: Dark Tower (level 2)
+121	BKT2	Dark Elf: Dark Tower (level 3)
+122	BKT3	Dark Elf: Dark Tower (level 4)
+123	BKT4	Dark Elf: Dark Tower (level 5)
+124	BPTO	Dark Elf: Tomb
+125	BPDU	Dark Elf: Reformatory
+126	BAGR	Dark Elf: Gravestone
+127	BATP	Dark Elf: Tree of Pain
+128	BAE0	Dark Elf: Brood (level 1)
+129	BAE1	Dark Elf: Brood (level 2)
+130	BAE2	Dark Elf: Brood (level 3)
+131	BPGL	Dark Elf: Gallery
+132	BPVO	Dark Elf: Void
+133	BAAG	Dark Elf: Kargothian Gate
+134	BPMP	Fey: Magic Pool
+135	BKF0	Fey: Dreamhold (level 1)
+136	BKF1	Fey: Dreamhold (level 2)
+137	BKF2	Fey: Dreamhold (level 3)
+138	BKF3	Fey: Dreamhold (level 4)
+139	BKF4	Fey: Dreamhold (level 5)
+140	BPFR	Fey: Faerie Ring
+141	BPOW	Fey: Orb of Wonder
+142	BPRB	Fey: Rainbow
+143	BAUG	Fey: Unicorn Grove
+144	BPTM	Fey: Tome
+145	BAN0	Fey: Nest (level 1)
+146	BAN1	Fey: Nest (level 2)
+147	BAN2	Fey: Nest (level 3)
+148	BKA0	Dark Dwarf: Furnace (level 1)
+149	BKA1	Dark Dwarf: Furnace (level 2)
+150	BKA2	Dark Dwarf: Furnace (level 3)
+151	BKA3	Dark Dwarf: Furnace (level 4)
+152	BKA4	Dark Dwarf: Furnace (level 5)
+153	BAGU	Dark Dwarf: Guild
+154	BASW	Dark Dwarf: Siege Workshop
+155	BPAH	Dark Dwarf: Ancestral Hall
+156	BWMO	Dark Dwarf: Mortar
+157	BAHG	Dark Dwarf: Hall of Golems
+158	BPTR	Dark Dwarf: Trader
+159	BPSD	Dark Dwarf: Supply Depot
+160	BAV0	Dark Dwarf: Eyrie (level 1)
+161	BAV1	Dark Dwarf: Eyrie (level 2)
+162	BAV2	Dark Dwarf: Eyrie (level 3)
+163	BAE0	Daemon: Brood (level 1)
+164	BAE1	Daemon: Brood (level 2)
+165	BAE2	Daemon: Brood (level 3)
+166	BKV0	Daemon: Doomspire (level 1)
+167	BKV1	Daemon: Doomspire (level 2)
+168	BKV2	Daemon: Doomspire (level 3)
+169	BKV3	Daemon: Doomspire (level 4)
+170	BKV4	Daemon: Doomspire (level 5)
+171	BPGA	Daemon: Gallows
+172	BPPO	Daemon: Portal
+173	BAPI	Daemon: Pit
+174	BAS0	Daemon: Summoning Tower (level 1)
+175	BAS1	Daemon: Summoning Tower (level 2)
+176	BAS2	Daemon: Summoning Tower (level 3)
+177	BWL0	Daemon: Lightning Spire (level 1)
+178	BWL1	Daemon: Lightning Spire (level 2)
+179	BPCS	Daemon: Chaos Shrine
+180	BKP0	Empire: Palace (level 1)
+181	BKP1	Empire: Palace (level 2)
+182	BKP2	Empire: Palace (level 3)
+183	BKP3	Empire: Palace (level 4)
+184	BKP4	Empire: Palace (level 5)
+185	BABA	Empire: Barracks
+186	BPLI	Empire: Library
+187	BPAC	Empire: Archway
+188	BABN	Empire: Elephant Trainer
+189	BPBS	Empire: Blacksmith
+190	BPGR	Empire: Granary
+191	BPQM	Empire: Quartermaster
+192	BAV0	Empire: Eyrie (level 1)
+193	BAV1	Empire: Eyrie (level 2)
+194	BAV2	Empire: Eyrie (level 3)
+195	BKL0	Ssrathi: Sun Temple (level 1)
+196	BKL1	Ssrathi: Sun Temple (level 2)
+197	BKL2	Ssrathi: Sun Temple (level 3)
+198	BKL3	Ssrathi: Sun Temple (level 4)
+199	BKL4	Ssrathi: Sun Temple (level 5)
+200	BAKS	Ssrathi: Worker Sect
+201	BAWS	Ssrathi: Warrior Sect
+202	BPLP	Ssrathi: Saurus Pen
+203	BPYP	Ssrathi: Scrying Pool
+204	BARS	Ssrathi: Religious Sect
+205	BPCP	Ssrathi: Sacred Pool
+206	BPHA	Ssrathi: Hatchery
+207	BAN0	Ssrathi: Nest (level 1)
+208	BAN1	Ssrathi: Nest (level 2)
+209	BAN2	Ssrathi: Nest (level 3)
+210	BAE0	Swarm: Brood (level 1)
+211	BAE1	Swarm: Brood (level 2)
+212	BAE2	Swarm: Brood (level 3)
+213	BKR0	Swarm: Dunekeep (level 1)
+214	BKR1	Swarm: Dunekeep (level 2)
+215	BKR2	Swarm: Dunekeep (level 3)
+216	BKR3	Swarm: Dunekeep (level 4)
+217	BKR4	Swarm: Dunekeep (level 5)
+218	BAH0	Swarm: Hive (level 1)
+219	BAH1	Swarm: Hive (level 2)
+220	BAH2	Swarm: Hive (level 3)
+221	BAH3	Swarm: Hive (level 4)
+222	BAH4	Swarm: Hive (level 5)
+223	BABC	Swarm: Burial Hall
+224	BPEC	Swarm: Egg Chamber
+225	BPWA	Swarm: Watcher
+226	BPSQ	Swarm: Queen
+227	BPSK	Swarm: Shrine of Melkor
+228	BAE0	Plaguelords: Brood (level 1)
+229	BAE1	Plaguelords: Brood (level 2)
+230	BAE2	Plaguelords: Brood (level 3)
+231	BKG0	Plaguelords: Hall of Plague (level 1)
+232	BKG1	Plaguelords: Hall of Plague (level 2)
+233	BKG2	Plaguelords: Hall of Plague (level 3)
+234	BKG3	Plaguelords: Hall of Plague (level 4)
+235	BKG4	Plaguelords: Hall of Plague (level 5)
+236	BACP	Plaguelords: Cess Pool
+237	BATE	Plaguelords: Temple of Eyes
+238	BPLB	Plaguelords: Laboratory
+239	BPSP	Plaguelords: Plague Pile
+240	BPPP	Plaguelords: Casket
+241	BPHC	Plaguelords: Hydra Cave
+242	BPPS	Plaguelords: Plague Shrine
+243	BPIC	Plaguelords: Ice Cave
+244	BPFC	Plaguelords: Fire Cave
+245	BRG0	Mine: Gold Mine (level 1)
+246	BRG1	Mine: Gold Mine (level 2)
+247	BRG2	Mine: Gold Mine (level 3)
+248	BRC0	Mine: Crystal Mine (level 1)
+249	BRC1	Mine: Crystal Mine (level 2)
+250	BRC2	Mine: Crystal Mine (level 3)
+251	BRM0	Mine: Ore Mine (level 1)
+252	BRM1	Mine: Ore Mine (level 2)
+253	BRM2	Mine: Ore Mine (level 3)
+254	BRS0	Mine: Quarry (level 1)
+255	BRS1	Mine: Quarry (level 2)
+256	BRS2	Mine: Quarry (level 3)
+257	BWTC	Tower (Knight)
+258	BWTD	Tower (Dwarf)
+259	BWTU	Tower (Undead)
+260	BWTB	Tower (Barbarian)
+261	BWTR	Tower (Minotaur)
+262	BWTO	Tower (Orc)
+263	BWTM	Tower (High Elf)
+264	BWTW	Tower (Wood Elf)
+265	BWTK	Tower (Dark Elf)
+266	BWTF	Crystal Tower (Fey)
+267	BWTA	Tower (D. Dwarf)
+268	BWTV	Tower (Daemon)
+269	BWTH	Tower (Empire)
+270	BWTL	Tower (Ssrathi)
+271	BWTE	Tower (Swarm)
+272	BWTG	Tower (Plague)
+273	BWRA	Walls: Rampart
+274	BWG0	Walls: Walls (2x2 good)
+275	BWG1	Walls: Walls (2x1 good)
+276	BWG2	Walls: Walls (1x2 good)
+277	BWN0	Walls: Walls (2x2 neut.)
+278	BWN1	Walls: Walls (2x1 neut.)
+279	BWN2	Walls: Walls (1x2 neut.)
+280	BWE0	Walls: Walls (2x2 evil)
+281	BWE1	Walls: Walls (2x1 evil)
+282	BWE2	Walls: Walls (1x2 evil)
+283	BSAL	Neutral: Bandit Lair
+284	BMBP	Neutral: Black Portal
+285	BTCE	Neutral: Celestial Temple
+286	BMCP	Neutral: Circle of Power
+287	BWGC	Neutral: Clay Guardian
+288	BTEL	Neutral: Elemental Temple
+289	BLGL	Neutral: Gnoll Lair
+290	BLGH	Neutral: Goblin Lair
+291	BLHN	Neutral: Harpy Lair
+292	BTIN	Neutral: Infernal Temple
+293	BWGI	Neutral: Iron Guardian
+294	BZMA	Neutral: Mausoleum
+295	BSFG	Neutral: Shop
+296	BMSH	Neutral: Shrine
+297	BTDR	Neutral: Snake Temple
+298	BSBS	Neutral: Spider Lair
+299	BWGS	Neutral: Stone Guardian
+300	BLBM	Neutral: Undead Lair
+301	BWIC	Neutral: Wall of Ice
+302	BWBR	Neutral: Wall of Thorns

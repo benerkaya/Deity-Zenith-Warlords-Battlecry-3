@@ -1,0 +1,2329 @@
+<?xml version="1.0" encoding="utf-8"?>
+<CheatTable CheatEngineTableVersion="45">
+  <CheatEntries>
+<CheatEntry><ID>49</ID><Description>"Deity Zenith - Enable"</Description><Options moHideChildren="1"/><VariableType>Auto Assembler Script</VariableType><AssemblerScript>[ENABLE]
+{$lua}
+if syntaxcheck then return end
+DZ = DZ or {}
+local D = DZ
+if D.stop then pcall(D.stop) end
+D.EXE = 'Battlecry III.exe'
+D.SESSION_CAP = 300
+D.BSESSION_CAP = 150
+
+-- 1) attach
+local pid = getProcessIDFromProcessName(D.EXE)
+if pid == nil or pid == 0 then
+  messageDialog('Start Warlords Battlecry 3 first.', mtInformation, mbOK)
+  error('Deity Zenith: game not running')
+end
+if getOpenedProcessID() ~= pid then pcall(openProcess, pid) end
+
+local function noAccess()
+  messageDialog('Run Cheat Engine as administrator (the game runs as admin).', mtError, mbOK)
+  error('Deity Zenith: cannot access the game process')
+end
+local function canRead()
+  if getOpenedProcessID() ~= pid then return false end
+  local b = readBytes(0x00400000, 2, true)      -- 'MZ' header of the game exe
+  return b ~= nil and #b == 2 and b[1] == 0x4D and b[2] == 0x5A
+end
+-- attach can be asynchronous: retry reads for up to ~2 seconds before deciding
+local readable = canRead()
+for i = 1, 20 do
+  if readable then break end
+  if getOpenedProcessID() ~= pid then pcall(openProcess, pid) end
+  if sleep then sleep(100) end
+  readable = canRead()
+end
+if not readable then noAccess() end
+
+-- 2) verify this exact game build (all patched / called sites)
+local CHECKS = {
+  {0x00458BB0, {0xA1,0x4C,0x7D,0xA2,0x00,0x8A,0x88,0x75,0x4A,0x04,0x00}}, -- frame hook site
+  {0x004B1170, {0x81,0xEC,0x04,0x04,0x00,0x00,0x53,0x56,0x57,0x8B,0xD9}}, -- send game message
+  {0x0049EB60, {0x81,0xEC,0x5C,0x01,0x00,0x00,0x53,0x56}},               -- message dispatcher
+  {0x004A5CA0, {0x66,0x8B,0x44,0x24,0x04,0x8B,0x0D,0x00,0x91,0x70,0x00}}, -- side control check
+  {0x0040A8B0, {0x56,0x66,0x8B,0x35,0x14,0x3F,0x6E,0x00}},               -- unit code lookup
+  {0x004386A3, {0x68,0x60,0xEB,0x49,0x00,0x8D,0x54,0x24,0x24,0x6A,0x3C,0x52,0x68,0xFA,0x00,0x00,0x00,0x6A,0x01,0xE8}}, -- game's own spawn call
+  {0x0058B740, {0xA1,0xD0,0x03,0x96,0x05}},                               -- object manager global
+  {0x0058BBA4, {0x66,0xFF,0x47,0x0A}},                                    -- army counter ++
+  {0x0058C5B8, {0x66,0xFF,0x49,0x0A}},                                    -- army counter --
+  {0x0049F518, {0x83,0xC6,0x02,0xB9,0x09,0x00,0x00,0x00,0x8D,0x7C,0x24,0x14,0x8D,0x44,0x24,0x14,0xF3,0xA5,0x50,0xE8,0xD0,0x7C,0x00,0x00}}, -- dispatcher: building message -&gt; 0x4A7200
+  {0x004A7200, {0x81,0xEC,0x80,0x00,0x00,0x00,0x53,0x56,0x8B,0xB4,0x24,0x8C,0x00,0x00,0x00,0x83,0x3E,0xFF}}, -- create-building handler (id -1 branch)
+  {0x004A7180, {0x51,0x56,0x8B,0x74,0x24,0x0C,0x8D,0x44,0x24,0x0C,0x8D,0x4C}}, -- placement check + id assignment
+  {0x004A71B7, {0xE8,0x44,0xE7,0xF8,0xFF}},                               -- call placement check 0x435900
+  {0x004A71F0, {0x68,0xF9,0x01,0x00,0x00,0x6A,0x00,0xE8,0x74,0x9F,0x00,0x00}}, -- game's own building send
+  {0x0040AA50, {0x56,0x66,0x8B,0x35,0x50,0x77,0x69,0x00}},               -- building code lookup
+  {0x0058BC54, {0x66,0xFF,0x47,0x0C}},                                    -- building counter ++
+  {0x0058C5F8, {0x66,0xFF,0x49,0x0C}},                                    -- building counter --
+  {0x0058B9AB, {0x66,0xFF,0x47,0x02}},                                    -- building slot counter ++
+  {0x0058C555, {0x66,0xFF,0x49,0x02}},                                    -- building slot counter --
+  {0x00527100, {0x83,0xEC,0x5C,0x56,0x8B,0xF1,0x57,0x8A,0x86,0xB4,0x00,0x00,0x00,0x84,0xC0}}, -- unit gains XP (hero flag +B4)
+  {0x005271B3, {0x8A,0x86,0xCD,0x01,0x00,0x00,0x84,0xC0}},               -- XP: no-XP flag +1CD (titans)
+  {0x005271E7, {0x8B,0x47,0x34,0x51,0x8D,0x4E,0x3C,0x51,0x50,0xE8,0x2B,0x68,0xEE,0xFF}}, -- XP: level/xp at unit+3C
+  {0x0040DA20, {0x0F,0xBF,0x44,0x24,0x0C,0x53,0x55,0x56,0x8B,0x74,0x24,0x14,0x57,0x33,0xED,0x8B,0x7E,0x04,0x66,0x8B,0x0E}}, -- level-up loop
+  {0x0040DA5F, {0x8B,0x7E,0x04,0x0F,0xBF,0xD0,0x3B,0x3C,0x95,0x50,0xBC,0x5F,0x00,0x7C,0x04,0x45,0x41,0xEB,0x05,0x66,0x3B,0xC1,0x7D,0x07,0x40,0x66,0x3D,0x13,0x00,0x7C,0xDC}}, -- XP table use, cap
+  {0x005FBC50, {0x05,0x00,0x00,0x00,0x0A,0x00,0x00,0x00,0x14,0x00,0x00,0x00,0x28,0x00,0x00,0x00,0x46,0x00,0x00,0x00,0x6E,0x00,0x00,0x00,0xA0,0x00,0x00,0x00,0xDC,0x00,0x00,0x00,0x18,0x01,0x00,0x00,0x5E,0x01,0x00,0x00,0xAE,0x01,0x00,0x00,0x08,0x02,0x00,0x00,0x62,0x02,0x00,0x00,0xBC,0x02,0x00,0x00,0x20,0x03,0x00,0x00,0x84,0x03,0x00,0x00,0x4C,0x04,0x00,0x00,0x14,0x05,0x00,0x00,0xDC,0x05,0x00,0x00}}, -- XP per level
+  {0x00531720, {0x8B,0x01,0xC3}},                                         -- selection head
+  {0x005317B0, {0x8B,0x09,0x33,0xC0,0x85,0xC9,0x74,0x08,0x8B,0x49,0x1C,0x40,0x85,0xC9,0x75,0xF8,0xC3}}, -- selection next = +1C
+  {0x00519880, {0x66,0x8B,0x41,0x28,0xC3}},                               -- object type (0 = army unit)
+  {0x00526D80, {0x8A,0x81,0xB4,0x00,0x00,0x00,0x84,0xC0}},               -- level getter (hero flag)
+  {0x00526DAB, {0x66,0x8B,0x41,0x3C,0xC3}},                               -- level getter (unit+3C)
+}
+for _, c in ipairs(CHECKS) do
+  local b = readBytes(c[1], #c[2], true)
+  if b == nil or #b ~= #c[2] then noAccess() end   -- unreadable = access problem, not a version mismatch
+  local ok = true
+  if ok then for i = 1, #c[2] do if b[i] ~= c[2][i] then ok = false break end end end
+  if not ok then
+    messageDialog('This game version is not supported.', mtError, mbOK)
+    error('Deity Zenith: unsupported game version')
+  end
+end
+local iat = readInteger(0x005EA1F0)
+if iat == nil then noAccess() end
+if iat == 0 then
+  messageDialog('This game version is not supported.', mtError, mbOK)
+  error('Deity Zenith: unsupported game version')
+end
+
+-- 3) unit list (index = Unit dropdown value)
+D.units = {
+  [0]=0x52414141, --AAAR
+  [1]=0x584C4841, --AHLX
+  [2]=0x47454141, --AAEG
+  [3]=0x58474841, --AHGX
+  [4]=0x58464841, --AHFX
+  [5]=0x58444841, --AHDX
+  [6]=0x58454841, --AHEX
+  [7]=0x58424841, --AHBX
+  [8]=0x45504141, --AAPE
+  [9]=0x584D4841, --AHMX
+  [10]=0x584B4841, --AHKX
+  [11]=0x584E4441, --ADNX
+  [12]=0x41425341, --ASBA
+  [13]=0x41435341, --ASCA
+  [14]=0x584A4441, --ADJX
+  [15]=0x584D4441, --ADMX
+  [16]=0x58494441, --ADIX
+  [17]=0x58474441, --ADGX
+  [18]=0x58534441, --ADSX
+  [19]=0x58424441, --ADBX
+  [20]=0x47454141, --AAEG
+  [21]=0x49524141, --AARI
+  [22]=0x584C4441, --ADLX
+  [23]=0x584F4441, --ADOX
+  [24]=0x41424141, --AABA
+  [25]=0x43425341, --ASBC
+  [26]=0x58415541, --AUAX
+  [27]=0x41484141, --AAHA
+  [28]=0x584D5541, --AUMX
+  [29]=0x58585541, --AUXX
+  [30]=0x58495541, --AUIX
+  [31]=0x58435541, --AUCX
+  [32]=0x584C5541, --AULX
+  [33]=0x58424241, --ABBX
+  [34]=0x58475541, --AUGX
+  [35]=0x584A5541, --AUJX
+  [36]=0x584B5541, --AUKX
+  [37]=0x58425541, --AUBX
+  [38]=0x58494241, --ABIX
+  [39]=0x47454141, --AAEG
+  [40]=0x484C4141, --AALH
+  [41]=0x45504141, --AAPE
+  [42]=0x58474241, --ABGX
+  [43]=0x58434241, --ABCX
+  [44]=0x58424241, --ABBX
+  [45]=0x58444241, --ABDX
+  [46]=0x58454241, --ABEX
+  [47]=0x58584F41, --AOXX
+  [48]=0x41424141, --AABA
+  [49]=0x41425341, --ASBA
+  [50]=0x41435341, --ASCA
+  [51]=0x584A4D41, --AMJX
+  [52]=0x49524141, --AARI
+  [53]=0x58494D41, --AMIX
+  [54]=0x584E4D41, --AMNX
+  [55]=0x58474D41, --AMGX
+  [56]=0x584D4D41, --AMMX
+  [57]=0x48534341, --ACSH
+  [58]=0x58424241, --ABBX
+  [59]=0x58584F41, --AOXX
+  [60]=0x41424141, --AABA
+  [61]=0x58474F41, --AOGX
+  [62]=0x58534F41, --AOSX
+  [63]=0x584B4F41, --AOKX
+  [64]=0x584E4F41, --AONX
+  [65]=0x53475341, --ASGS
+  [66]=0x41484141, --AAHA
+  [67]=0x58424F41, --AOBX
+  [68]=0x584F4F41, --AOOX
+  [69]=0x584A4F41, --AOJX
+  [70]=0x58494F41, --AOIX
+  [71]=0x58424241, --ABBX
+  [72]=0x584D4F41, --AOMX
+  [73]=0x58434F41, --AOCX
+  [74]=0x58414541, --AEAX
+  [75]=0x58434541, --AECX
+  [76]=0x584F4541, --AEOX
+  [77]=0x58494541, --AEIX
+  [78]=0x584D4541, --AEMX
+  [79]=0x43535341, --ASSC
+  [80]=0x58474541, --AEGX
+  [81]=0x584E4541, --AENX
+  [82]=0x45504141, --AAPE
+  [83]=0x48504141, --AAPH
+  [84]=0x584B4B41, --AKKX
+  [85]=0x58444541, --AEDX
+  [86]=0x58424541, --AEBX
+  [87]=0x584B5741, --AWKX
+  [88]=0x58414541, --AEAX
+  [89]=0x584E5741, --AWNX
+  [90]=0x58475741, --AWGX
+  [91]=0x58454541, --AEEX
+  [92]=0x58495741, --AWIX
+  [93]=0x584D5741, --AWMX
+  [94]=0x49524141, --AARI
+  [95]=0x48504141, --AAPH
+  [96]=0x58584541, --AEXX
+  [97]=0x50534141, --AASP
+  [98]=0x584A5741, --AWJX
+  [99]=0x58424541, --AEBX
+  [100]=0x58435741, --AWCX
+  [101]=0x58414541, --AEAX
+  [102]=0x584A4B41, --AKJX
+  [103]=0x58474B41, --AKGX
+  [104]=0x45444141, --AADE
+  [105]=0x584D4B41, --AKMX
+  [106]=0x58494B41, --AKIX
+  [107]=0x58434B41, --AKCX
+  [108]=0x41484141, --AAHA
+  [109]=0x4D494141, --AAIM
+  [110]=0x48504141, --AAPH
+  [111]=0x584C4B41, --AKLX
+  [112]=0x58495541, --AUIX
+  [113]=0x584E4B41, --AKNX
+  [114]=0x584F4B41, --AKOX
+  [115]=0x58424241, --ABBX
+  [116]=0x58424541, --AEBX
+  [117]=0x58474641, --AFGX
+  [118]=0x584D4641, --AFMX
+  [119]=0x584E4641, --AFNX
+  [120]=0x484C4141, --AALH
+  [121]=0x58424641, --AFBX
+  [122]=0x58494641, --AFIX
+  [123]=0x584A4641, --AFJX
+  [124]=0x58474141, --AAGX
+  [125]=0x58424141, --AABX
+  [126]=0x58534141, --AASX
+  [127]=0x584D4141, --AAMX
+  [128]=0x584E4141, --AANX
+  [129]=0x584A4141, --AAJX
+  [130]=0x58585541, --AUXX
+  [131]=0x58494141, --AAIX
+  [132]=0x584B5541, --AUKX
+  [133]=0x59574141, --AAWY
+  [134]=0x45444141, --AADE
+  [135]=0x42464141, --AAFB
+  [136]=0x41484141, --AAHA
+  [137]=0x4D494141, --AAIM
+  [138]=0x58435641, --AVCX
+  [139]=0x58425641, --AVBX
+  [140]=0x584A5641, --AVJX
+  [141]=0x58445641, --AVDX
+  [142]=0x4F534341, --ACSO
+  [143]=0x58495641, --AVIX
+  [144]=0x58475641, --AVGX
+  [145]=0x584D5041, --APMX
+  [146]=0x42474841, --AHGB
+  [147]=0x58445041, --APDX
+  [148]=0x584A4841, --AHJX
+  [149]=0x58434841, --AHCX
+  [150]=0x58424841, --AHBX
+  [151]=0x58494841, --AHIX
+  [152]=0x52474841, --AHGR
+  [153]=0x57474841, --AHGW
+  [154]=0x58424C41, --ALBX
+  [155]=0x46444141, --AADF
+  [156]=0x58434C41, --ALCX
+  [157]=0x58474C41, --ALGX
+  [158]=0x54504141, --AAPT
+  [159]=0x58494C41, --ALIX
+  [160]=0x584D4C41, --ALMX
+  [161]=0x58444C41, --ALDX
+  [162]=0x58454C41, --ALEX
+  [163]=0x58425241, --ARBX
+  [164]=0x584A5241, --ARJX
+  [165]=0x584D5241, --ARMX
+  [166]=0x58495241, --ARIX
+  [167]=0x58435241, --ARCX
+  [168]=0x58475241, --ARGX
+  [169]=0x41574141, --AAWA
+  [170]=0x59434741, --AGCY
+  [171]=0x4C464741, --AGFL
+  [172]=0x5A474741, --AGGZ
+  [173]=0x43504741, --AGPC
+  [174]=0x59484741, --AGHY
+  [175]=0x58474741, --AGGX
+  [176]=0x59504741, --AGPY
+  [177]=0x4C534741, --AGSL
+  [178]=0x50534741, --AGSP
+  [179]=0x58425541, --AUBX
+  [180]=0x41454141, --AAEA
+  [181]=0x45454141, --AAEE
+  [182]=0x46454141, --AAEF
+  [183]=0x57454141, --AAEW
+  [184]=0x43444141, --AADC
+  [185]=0x52444141, --AADR
+  [186]=0x55444141, --AADU
+  [187]=0x57444141, --AADW
+  [188]=0x42444141, --AADB
+  [189]=0x47444141, --AADG
+  [190]=0x58565441, --ATVX
+  [191]=0x584F5441, --ATOX
+  [192]=0x58415441, --ATAX
+  [193]=0x584C5441, --ATLX
+  [194]=0x58575441, --ATWX
+  [195]=0x584B5441, --ATKX
+  [196]=0x58445441, --ATDX
+  [197]=0x58455441, --ATEX
+  [198]=0x58475441, --ATGX
+  [199]=0x58555441, --ATUX
+  [200]=0x58525441, --ATRX
+  [201]=0x58485441, --ATHX
+  [202]=0x584D5441, --ATMX
+  [203]=0x58425441, --ATBX
+  [204]=0x58465441, --ATFX
+  [205]=0x58505441, --ATPX
+  [206]=0x41434341, --ACCA
+  [207]=0x4F434341, --ACCO
+  [208]=0x59454141, --AAEY
+  [209]=0x4F474341, --ACGO
+  [210]=0x58585841, --AXXX
+  [211]=0x45504341, --ACPE
+  [212]=0x45534341, --ACSE
+  [213]=0x55544341, --ACTU
+  [214]=0x58484841, --AHHX
+  [215]=0x58484441, --ADHX
+  [216]=0x58485541, --AUHX
+  [217]=0x58484D41, --AMHX
+  [218]=0x58484241, --ABHX
+  [219]=0x58484F41, --AOHX
+  [220]=0x58484541, --AEHX
+  [221]=0x58485741, --AWHX
+  [222]=0x58484B41, --AKHX
+  [223]=0x58484641, --AFHX
+  [224]=0x58484141, --AAHX
+  [225]=0x58485641, --AVHX
+  [226]=0x58485241, --ARHX
+  [227]=0x30484841, --AHH0
+  [228]=0x31484841, --AHH1
+  [229]=0x58484C41, --ALHX
+  [230]=0x58485041, --APHX
+}
+-- building list (index = Building dropdown value)
+D.blds = {
+  [0]=0x41435042, --BPCA
+  [1]=0x4C465042, --BPFL
+  [2]=0x42535042, --BPSB
+  [3]=0x4D535042, --BPSM
+  [4]=0x414D5042, --BPMA
+  [5]=0x53535042, --BPSS
+  [6]=0x304B4B42, --BKK0
+  [7]=0x314B4B42, --BKK1
+  [8]=0x324B4B42, --BKK2
+  [9]=0x334B4B42, --BKK3
+  [10]=0x344B4B42, --BKK4
+  [11]=0x41474142, --BAGA
+  [12]=0x30564142, --BAV0
+  [13]=0x31564142, --BAV1
+  [14]=0x32564142, --BAV2
+  [15]=0x52414142, --BAAR
+  [16]=0x4F465042, --BPFO
+  [17]=0x4F4D5742, --BWMO
+  [18]=0x30444B42, --BKD0
+  [19]=0x31444B42, --BKD1
+  [20]=0x32444B42, --BKD2
+  [21]=0x33444B42, --BKD3
+  [22]=0x34444B42, --BKD4
+  [23]=0x52425042, --BPBR
+  [24]=0x50545042, --BPTP
+  [25]=0x53575042, --BPWS
+  [26]=0x4C435042, --BPCL
+  [27]=0x30564142, --BAV0
+  [28]=0x31564142, --BAV1
+  [29]=0x32564142, --BAV2
+  [30]=0x52474142, --BAGR
+  [31]=0x30454142, --BAE0
+  [32]=0x31454142, --BAE1
+  [33]=0x32454142, --BAE2
+  [34]=0x41425042, --BPBA
+  [35]=0x30554B42, --BKU0
+  [36]=0x31554B42, --BKU1
+  [37]=0x32554B42, --BKU2
+  [38]=0x33554B42, --BKU3
+  [39]=0x34554B42, --BKU4
+  [40]=0x4C425042, --BPBL
+  [41]=0x59474142, --BAGY
+  [42]=0x53415042, --BPAS
+  [43]=0x47435042, --BPCG
+  [44]=0x4D445042, --BPDM
+  [45]=0x54535042, --BPST
+  [46]=0x4F435042, --BPCO
+  [47]=0x30424B42, --BKB0
+  [48]=0x31424B42, --BKB1
+  [49]=0x32424B42, --BKB2
+  [50]=0x33424B42, --BKB3
+  [51]=0x34424B42, --BKB4
+  [52]=0x41434142, --BACA
+  [53]=0x54415042, --BPAT
+  [54]=0x55485042, --BPHU
+  [55]=0x494D5042, --BPMI
+  [56]=0x304E4142, --BAN0
+  [57]=0x314E4142, --BAN1
+  [58]=0x324E4142, --BAN2
+  [59]=0x30484B42, --BKH0
+  [60]=0x31484B42, --BKH1
+  [61]=0x32484B42, --BKH2
+  [62]=0x33484B42, --BKH3
+  [63]=0x34484B42, --BKH4
+  [64]=0x52415042, --BPAR
+  [65]=0x41445042, --BPDA
+  [66]=0x4E495042, --BPIN
+  [67]=0x47485042, --BPHG
+  [68]=0x57495042, --BPIW
+  [69]=0x4F4C5042, --BPLO
+  [70]=0x4E504142, --BAPN
+  [71]=0x30564142, --BAV0
+  [72]=0x31564142, --BAV1
+  [73]=0x32564142, --BAV2
+  [74]=0x484F5042, --BPOH
+  [75]=0x30454142, --BAE0
+  [76]=0x31454142, --BAE1
+  [77]=0x32454142, --BAE2
+  [78]=0x50545742, --BWTP
+  [79]=0x304F4B42, --BKO0
+  [80]=0x314F4B42, --BKO1
+  [81]=0x324F4B42, --BKO2
+  [82]=0x334F4B42, --BKO3
+  [83]=0x344F4B42, --BKO4
+  [84]=0x59424142, --BABY
+  [85]=0x54474142, --BAGT
+  [86]=0x52504142, --BAPR
+  [87]=0x4D534142, --BASM
+  [88]=0x50424142, --BABP
+  [89]=0x45485042, --BPHE
+  [90]=0x53445042, --BPDS
+  [91]=0x30454B42, --BKE0
+  [92]=0x31454B42, --BKE1
+  [93]=0x32454B42, --BKE2
+  [94]=0x33454B42, --BKE3
+  [95]=0x34454B42, --BKE4
+  [96]=0x47544142, --BATG
+  [97]=0x454D5042, --BPME
+  [98]=0x49445042, --BPDI
+  [99]=0x52534142, --BASR
+  [100]=0x544D5042, --BPMT
+  [101]=0x304E4142, --BAN0
+  [102]=0x314E4142, --BAN1
+  [103]=0x324E4142, --BAN2
+  [104]=0x4C544142, --BATL
+  [105]=0x54575042, --BPWT
+  [106]=0x30574B42, --BKW0
+  [107]=0x31574B42, --BKW1
+  [108]=0x32574B42, --BKW2
+  [109]=0x33574B42, --BKW3
+  [110]=0x34574B42, --BKW4
+  [111]=0x54465042, --BPFT
+  [112]=0x4F485042, --BPHO
+  [113]=0x47525042, --BPRG
+  [114]=0x53485042, --BPHS
+  [115]=0x574D5042, --BPMW
+  [116]=0x304E4142, --BAN0
+  [117]=0x314E4142, --BAN1
+  [118]=0x324E4142, --BAN2
+  [119]=0x30544B42, --BKT0
+  [120]=0x31544B42, --BKT1
+  [121]=0x32544B42, --BKT2
+  [122]=0x33544B42, --BKT3
+  [123]=0x34544B42, --BKT4
+  [124]=0x4F545042, --BPTO
+  [125]=0x55445042, --BPDU
+  [126]=0x52474142, --BAGR
+  [127]=0x50544142, --BATP
+  [128]=0x30454142, --BAE0
+  [129]=0x31454142, --BAE1
+  [130]=0x32454142, --BAE2
+  [131]=0x4C475042, --BPGL
+  [132]=0x4F565042, --BPVO
+  [133]=0x47414142, --BAAG
+  [134]=0x504D5042, --BPMP
+  [135]=0x30464B42, --BKF0
+  [136]=0x31464B42, --BKF1
+  [137]=0x32464B42, --BKF2
+  [138]=0x33464B42, --BKF3
+  [139]=0x34464B42, --BKF4
+  [140]=0x52465042, --BPFR
+  [141]=0x574F5042, --BPOW
+  [142]=0x42525042, --BPRB
+  [143]=0x47554142, --BAUG
+  [144]=0x4D545042, --BPTM
+  [145]=0x304E4142, --BAN0
+  [146]=0x314E4142, --BAN1
+  [147]=0x324E4142, --BAN2
+  [148]=0x30414B42, --BKA0
+  [149]=0x31414B42, --BKA1
+  [150]=0x32414B42, --BKA2
+  [151]=0x33414B42, --BKA3
+  [152]=0x34414B42, --BKA4
+  [153]=0x55474142, --BAGU
+  [154]=0x57534142, --BASW
+  [155]=0x48415042, --BPAH
+  [156]=0x4F4D5742, --BWMO
+  [157]=0x47484142, --BAHG
+  [158]=0x52545042, --BPTR
+  [159]=0x44535042, --BPSD
+  [160]=0x30564142, --BAV0
+  [161]=0x31564142, --BAV1
+  [162]=0x32564142, --BAV2
+  [163]=0x30454142, --BAE0
+  [164]=0x31454142, --BAE1
+  [165]=0x32454142, --BAE2
+  [166]=0x30564B42, --BKV0
+  [167]=0x31564B42, --BKV1
+  [168]=0x32564B42, --BKV2
+  [169]=0x33564B42, --BKV3
+  [170]=0x34564B42, --BKV4
+  [171]=0x41475042, --BPGA
+  [172]=0x4F505042, --BPPO
+  [173]=0x49504142, --BAPI
+  [174]=0x30534142, --BAS0
+  [175]=0x31534142, --BAS1
+  [176]=0x32534142, --BAS2
+  [177]=0x304C5742, --BWL0
+  [178]=0x314C5742, --BWL1
+  [179]=0x53435042, --BPCS
+  [180]=0x30504B42, --BKP0
+  [181]=0x31504B42, --BKP1
+  [182]=0x32504B42, --BKP2
+  [183]=0x33504B42, --BKP3
+  [184]=0x34504B42, --BKP4
+  [185]=0x41424142, --BABA
+  [186]=0x494C5042, --BPLI
+  [187]=0x43415042, --BPAC
+  [188]=0x4E424142, --BABN
+  [189]=0x53425042, --BPBS
+  [190]=0x52475042, --BPGR
+  [191]=0x4D515042, --BPQM
+  [192]=0x30564142, --BAV0
+  [193]=0x31564142, --BAV1
+  [194]=0x32564142, --BAV2
+  [195]=0x304C4B42, --BKL0
+  [196]=0x314C4B42, --BKL1
+  [197]=0x324C4B42, --BKL2
+  [198]=0x334C4B42, --BKL3
+  [199]=0x344C4B42, --BKL4
+  [200]=0x534B4142, --BAKS
+  [201]=0x53574142, --BAWS
+  [202]=0x504C5042, --BPLP
+  [203]=0x50595042, --BPYP
+  [204]=0x53524142, --BARS
+  [205]=0x50435042, --BPCP
+  [206]=0x41485042, --BPHA
+  [207]=0x304E4142, --BAN0
+  [208]=0x314E4142, --BAN1
+  [209]=0x324E4142, --BAN2
+  [210]=0x30454142, --BAE0
+  [211]=0x31454142, --BAE1
+  [212]=0x32454142, --BAE2
+  [213]=0x30524B42, --BKR0
+  [214]=0x31524B42, --BKR1
+  [215]=0x32524B42, --BKR2
+  [216]=0x33524B42, --BKR3
+  [217]=0x34524B42, --BKR4
+  [218]=0x30484142, --BAH0
+  [219]=0x31484142, --BAH1
+  [220]=0x32484142, --BAH2
+  [221]=0x33484142, --BAH3
+  [222]=0x34484142, --BAH4
+  [223]=0x43424142, --BABC
+  [224]=0x43455042, --BPEC
+  [225]=0x41575042, --BPWA
+  [226]=0x51535042, --BPSQ
+  [227]=0x4B535042, --BPSK
+  [228]=0x30454142, --BAE0
+  [229]=0x31454142, --BAE1
+  [230]=0x32454142, --BAE2
+  [231]=0x30474B42, --BKG0
+  [232]=0x31474B42, --BKG1
+  [233]=0x32474B42, --BKG2
+  [234]=0x33474B42, --BKG3
+  [235]=0x34474B42, --BKG4
+  [236]=0x50434142, --BACP
+  [237]=0x45544142, --BATE
+  [238]=0x424C5042, --BPLB
+  [239]=0x50535042, --BPSP
+  [240]=0x50505042, --BPPP
+  [241]=0x43485042, --BPHC
+  [242]=0x53505042, --BPPS
+  [243]=0x43495042, --BPIC
+  [244]=0x43465042, --BPFC
+  [245]=0x30475242, --BRG0
+  [246]=0x31475242, --BRG1
+  [247]=0x32475242, --BRG2
+  [248]=0x30435242, --BRC0
+  [249]=0x31435242, --BRC1
+  [250]=0x32435242, --BRC2
+  [251]=0x304D5242, --BRM0
+  [252]=0x314D5242, --BRM1
+  [253]=0x324D5242, --BRM2
+  [254]=0x30535242, --BRS0
+  [255]=0x31535242, --BRS1
+  [256]=0x32535242, --BRS2
+  [257]=0x43545742, --BWTC
+  [258]=0x44545742, --BWTD
+  [259]=0x55545742, --BWTU
+  [260]=0x42545742, --BWTB
+  [261]=0x52545742, --BWTR
+  [262]=0x4F545742, --BWTO
+  [263]=0x4D545742, --BWTM
+  [264]=0x57545742, --BWTW
+  [265]=0x4B545742, --BWTK
+  [266]=0x46545742, --BWTF
+  [267]=0x41545742, --BWTA
+  [268]=0x56545742, --BWTV
+  [269]=0x48545742, --BWTH
+  [270]=0x4C545742, --BWTL
+  [271]=0x45545742, --BWTE
+  [272]=0x47545742, --BWTG
+  [273]=0x41525742, --BWRA
+  [274]=0x30475742, --BWG0
+  [275]=0x31475742, --BWG1
+  [276]=0x32475742, --BWG2
+  [277]=0x304E5742, --BWN0
+  [278]=0x314E5742, --BWN1
+  [279]=0x324E5742, --BWN2
+  [280]=0x30455742, --BWE0
+  [281]=0x31455742, --BWE1
+  [282]=0x32455742, --BWE2
+  [283]=0x4C415342, --BSAL
+  [284]=0x50424D42, --BMBP
+  [285]=0x45435442, --BTCE
+  [286]=0x50434D42, --BMCP
+  [287]=0x43475742, --BWGC
+  [288]=0x4C455442, --BTEL
+  [289]=0x4C474C42, --BLGL
+  [290]=0x48474C42, --BLGH
+  [291]=0x4E484C42, --BLHN
+  [292]=0x4E495442, --BTIN
+  [293]=0x49475742, --BWGI
+  [294]=0x414D5A42, --BZMA
+  [295]=0x47465342, --BSFG
+  [296]=0x48534D42, --BMSH
+  [297]=0x52445442, --BTDR
+  [298]=0x53425342, --BSBS
+  [299]=0x53475742, --BWGS
+  [300]=0x4D424C42, --BLBM
+  [301]=0x43495742, --BWIC
+  [302]=0x52425742, --BWBR
+}
+-- dropdown texts for the single Summon record (swapped when Type changes)
+D.unitList = [==[
+0:Knight: Archon
+1:Knight: Dancing Sword
+2:Knight: Eagle
+3:Knight: Inquisitor
+4:Knight: Knight
+5:Knight: Knight Champion
+6:Knight: Knight Lord
+7:Knight: Peasant
+8:Knight: Pegasus
+9:Knight: Squire
+10:Knight: Swordsman
+11:Dwarf: Ballista
+12:Dwarf: Battering Ram
+13:Dwarf: Catapult
+14:Dwarf: Dwarf Berserker
+15:Dwarf: Dwarf Crossbow
+16:Dwarf: Dwarf Infantry
+17:Dwarf: Dwarf Lord
+18:Dwarf: Dwarf Runner
+19:Dwarf: Dwarven Smith
+20:Dwarf: Eagle
+21:Dwarf: Griffon
+22:Dwarf: Khazrimi Guard
+23:Dwarf: Runelord
+24:Undead: Bat
+25:Undead: Bone Catapult
+26:Undead: Doom Knight
+27:Undead: Harpy
+28:Undead: Liche
+29:Undead: Shadow
+30:Undead: Skeleton
+31:Undead: Skeleton Cavalry
+32:Undead: Slayer Knight
+33:Undead: Thrall
+34:Undead: Vampire
+35:Undead: Wight
+36:Undead: Wraith
+37:Undead: Zombie
+38:Barbarian: Barbarian
+39:Barbarian: Eagle
+40:Barbarian: Lightning Hawk
+41:Barbarian: Pegasus
+42:Barbarian: Reaver
+43:Barbarian: Rider
+44:Barbarian: Thrall
+45:Barbarian: War Dog
+46:Barbarian: Warlord
+47:Minotaur: Basilisk
+48:Minotaur: Bat
+49:Minotaur: Battering Ram
+50:Minotaur: Catapult
+51:Minotaur: Gnoll
+52:Minotaur: Griffon
+53:Minotaur: Minotaur
+54:Minotaur: Minotaur Axe Thrower
+55:Minotaur: Minotaur King
+56:Minotaur: Minotaur Shaman
+57:Minotaur: Sheep
+58:Minotaur: Thrall
+59:Orc: Basilisk
+60:Orc: Bat
+61:Orc: Giant
+62:Orc: Goblin
+63:Orc: Goblin Chief
+64:Orc: Goblin Shaman
+65:Orc: Gobshooter
+66:Orc: Harpy
+67:Orc: Kobold
+68:Orc: Kobold Sniper
+69:Orc: Ogre
+70:Orc: Orc
+71:Orc: Thrall
+72:Orc: Troll
+73:Orc: Wolfrider
+74:High Elf: Ancient Wisp
+75:High Elf: Dragon Knight
+76:High Elf: Ice Maiden
+77:High Elf: Iceguard
+78:High Elf: Longbow
+79:High Elf: Manticore
+80:High Elf: Moonguard
+81:High Elf: Mystic
+82:High Elf: Pegasus
+83:High Elf: Phoenix
+84:High Elf: Spider
+85:High Elf: Unicorn
+86:High Elf: Wisp
+87:Wood Elf: Ancient Treant
+88:Wood Elf: Ancient Wisp
+89:Wood Elf: Druid
+90:Wood Elf: Dryad
+91:Wood Elf: Elven Hunter
+92:Wood Elf: Forestguard
+93:Wood Elf: Gladewarden
+94:Wood Elf: Griffon
+95:Wood Elf: Phoenix
+96:Wood Elf: Pixie
+97:Wood Elf: Sprite
+98:Wood Elf: Treant
+99:Wood Elf: Wisp
+100:Wood Elf: Woodrider
+101:Dark Elf: Ancient Wisp
+102:Dark Elf: Assassin
+103:Dark Elf: Blackguard
+104:Dark Elf: Daemon
+105:Dark Elf: Dark Archer
+106:Dark Elf: Dark Infantry
+107:Dark Elf: Dark Rider
+108:Dark Elf: Harpy
+109:Dark Elf: Imp
+110:Dark Elf: Phoenix
+111:Dark Elf: Queen Spider
+112:Dark Elf: Skeleton
+113:Dark Elf: Sorceror
+114:Dark Elf: Spider Priestess
+115:Dark Elf: Thrall
+116:Dark Elf: Wisp
+117:Fey: Banshee
+118:Fey: Faerie Dragon
+119:Fey: Leprechaun
+120:Fey: Lightning Hawk
+121:Fey: Oakman
+122:Fey: Spriggan
+123:Fey: Sylph
+124:Dark Dwarf: Bronze Golem
+125:Dark Dwarf: Engineer
+126:Dark Dwarf: Firebomb
+127:Dark Dwarf: Flame Cannon
+128:Dark Dwarf: Hellbore
+129:Dark Dwarf: Iron Golem
+130:Dark Dwarf: Shadow
+131:Dark Dwarf: Stone Golem
+132:Dark Dwarf: Wraith
+133:Dark Dwarf: Wyvern
+134:Daemon: Daemon
+135:Daemon: Firebat
+136:Daemon: Harpy
+137:Daemon: Imp
+138:Daemon: Nightmare
+139:Daemon: Quasit
+140:Daemon: Reaper
+141:Daemon: Salamander
+142:Daemon: Soul
+143:Daemon: Succubus
+144:Daemon: Summoner
+145:Empire: Archer
+146:Empire: Black Mage
+147:Empire: Elephant
+148:Empire: Halberdier
+149:Empire: Mercenary
+150:Empire: Peasant
+151:Empire: Pikeman
+152:Empire: Red Mage
+153:Empire: White Mage
+154:Ssrathi: Chameleon
+155:Ssrathi: Dragonfly
+156:Ssrathi: Lizard Rider
+157:Ssrathi: Naga
+158:Ssrathi: Pterodactyl
+159:Ssrathi: Snakeman
+160:Ssrathi: Snakepriest
+161:Ssrathi: Triceratops
+162:Ssrathi: Tyrannosaurus
+163:Swarm: Giant Ant
+164:Swarm: Husk
+165:Swarm: Scarab
+166:Swarm: Scorpion
+167:Swarm: Scorpionman
+168:Swarm: Scorpionpriest
+169:Swarm: Wasp
+170:Plaguelords: Cryohydra
+171:Plaguelords: Eye of Flame
+172:Plaguelords: Gazer
+173:Plaguelords: Ghoul
+174:Plaguelords: Hydra
+175:Plaguelords: Plague Priest
+176:Plaguelords: Pyrohydra
+177:Plaguelords: Slime
+178:Plaguelords: Spore
+179:Plaguelords: Zombie
+180:Elementals: Air Elemental
+181:Elementals: Earth Elemental
+182:Elementals: Fire Elemental
+183:Elementals: Water Elemental
+184:Dragons: Celestial Dragon
+185:Dragons: Dragon
+186:Dragons: Dragonliche
+187:Dragons: Frost Dragon
+188:Dragons: Storm Dragon
+189:Dragons: Swamp Dragon
+190:Titans: Balora
+191:Titans: Gornak Elfeater
+192:Titans: Grond
+193:Titans: Iriki
+194:Titans: Ironbark
+195:Titans: Kargoth
+196:Titans: King Khalid
+197:Titans: King Lunarion
+198:Titans: Lord Antharg
+199:Titans: Lord Bane
+200:Titans: Lord Melkor
+201:Titans: Sirian
+202:Titans: Skull of Sartek
+203:Titans: Tempest
+204:Titans: The Forestmaster
+205:Titans: The Lion Throne
+206:Neutral: Camel
+207:Neutral: Cow
+208:Neutral: Eye of Oros
+209:Neutral: Goose
+210:Neutral: Guardian Skull
+211:Neutral: Penguin
+212:Neutral: Seal
+213:Neutral: Turtle
+214:Hero: Knight Hero
+215:Hero: Dwarf Hero
+216:Hero: Undead Hero
+217:Hero: Barbarian Hero
+218:Hero: Minotaur Hero
+219:Hero: Orc Hero
+220:Hero: High Elf Hero
+221:Hero: Wood Elf Hero
+222:Hero: Dark Elf Hero
+223:Hero: Fey Hero
+224:Hero: Dark Dwarf Hero
+225:Hero: Daemon Hero
+226:Hero: Swarm Hero
+227:Hero: Good Wizard Hero
+228:Hero: Evil Wizard Hero
+229:Hero: Ssrathi Hero
+230:Hero: Imperial Hero
+]==]
+D.bldList = [==[
+0:Knight: Cathedral
+1:Knight: Fletcher
+2:Knight: Stables
+3:Knight: Smithy
+4:Knight: Market
+5:Knight: Shrine of the Sword
+6:Knight: Keep (level 1)
+7:Knight: Keep (level 2)
+8:Knight: Keep (level 3)
+9:Knight: Keep (level 4)
+10:Knight: Keep (level 5)
+11:Knight: Garrison
+12:Knight: Eyrie (level 1)
+13:Knight: Eyrie (level 2)
+14:Knight: Eyrie (level 3)
+15:Dwarf: Armory
+16:Dwarf: Foundry
+17:Dwarf: Mortar
+18:Dwarf: Citadel (level 1)
+19:Dwarf: Citadel (level 2)
+20:Dwarf: Citadel (level 3)
+21:Dwarf: Citadel (level 4)
+22:Dwarf: Citadel (level 5)
+23:Dwarf: Brewery
+24:Dwarf: Trading Post
+25:Dwarf: Workshop
+26:Dwarf: College
+27:Dwarf: Eyrie (level 1)
+28:Dwarf: Eyrie (level 2)
+29:Dwarf: Eyrie (level 3)
+30:Undead: Gravestone
+31:Undead: Brood (level 1)
+32:Undead: Brood (level 2)
+33:Undead: Brood (level 3)
+34:Undead: Barrow
+35:Undead: Deathspire (level 1)
+36:Undead: Deathspire (level 2)
+37:Undead: Deathspire (level 3)
+38:Undead: Deathspire (level 4)
+39:Undead: Deathspire (level 5)
+40:Undead: Black Library
+41:Undead: Graveyard
+42:Undead: Altar of Shadows
+43:Undead: Cage
+44:Undead: Dark Mill
+45:Barbarian: Scout Tower
+46:Barbarian: Corral
+47:Barbarian: Fortress (level 1)
+48:Barbarian: Fortress (level 2)
+49:Barbarian: Fortress (level 3)
+50:Barbarian: Fortress (level 4)
+51:Barbarian: Fortress (level 5)
+52:Barbarian: Camp
+53:Barbarian: Altar of Tempest
+54:Barbarian: Chieftain's Hut
+55:Barbarian: Mill
+56:Barbarian: Nest (level 1)
+57:Barbarian: Nest (level 2)
+58:Barbarian: Nest (level 3)
+59:Minotaur: Ziggurat (level 1)
+60:Minotaur: Ziggurat (level 2)
+61:Minotaur: Ziggurat (level 3)
+62:Minotaur: Ziggurat (level 4)
+63:Minotaur: Ziggurat (level 5)
+64:Minotaur: Arena
+65:Minotaur: Altar of Sartek
+66:Minotaur: Ale Store
+67:Minotaur: Henge
+68:Minotaur: Ironworks
+69:Minotaur: Lookout
+70:Minotaur: Pen
+71:Minotaur: Eyrie (level 1)
+72:Minotaur: Eyrie (level 2)
+73:Minotaur: Eyrie (level 3)
+74:Orc: Hovel
+75:Orc: Brood (level 1)
+76:Orc: Brood (level 2)
+77:Orc: Brood (level 3)
+78:Orc: Totem
+79:Orc: Orchold (level 1)
+80:Orc: Orchold (level 2)
+81:Orc: Orchold (level 3)
+82:Orc: Orchold (level 4)
+83:Orc: Orchold (level 5)
+84:Orc: Battleyard
+85:Orc: Goblin Tower
+86:Orc: Prison
+87:Orc: Shaman's Hut
+88:Orc: Beast Pit
+89:High Elf: Healer
+90:High Elf: Dragon Shrine
+91:High Elf: White Tower (level 1)
+92:High Elf: White Tower (level 2)
+93:High Elf: White Tower (level 3)
+94:High Elf: White Tower (level 4)
+95:High Elf: White Tower (level 5)
+96:High Elf: Tree of Gold
+97:High Elf: Merchant
+98:High Elf: Dragonstone
+99:High Elf: Shooting Range
+100:High Elf: Tower of the Moon
+101:High Elf: Nest (level 1)
+102:High Elf: Nest (level 2)
+103:High Elf: Nest (level 3)
+104:Wood Elf: Tree of Life
+105:Wood Elf: White Tree
+106:Wood Elf: Haven (level 1)
+107:Wood Elf: Haven (level 2)
+108:Wood Elf: Haven (level 3)
+109:Wood Elf: Haven (level 4)
+110:Wood Elf: Haven (level 5)
+111:Wood Elf: Forest Tower
+112:Wood Elf: Healing Orb
+113:Wood Elf: Rangers' Guild
+114:Wood Elf: Hostel
+115:Wood Elf: Magic Well
+116:Wood Elf: Nest (level 1)
+117:Wood Elf: Nest (level 2)
+118:Wood Elf: Nest (level 3)
+119:Dark Elf: Dark Tower (level 1)
+120:Dark Elf: Dark Tower (level 2)
+121:Dark Elf: Dark Tower (level 3)
+122:Dark Elf: Dark Tower (level 4)
+123:Dark Elf: Dark Tower (level 5)
+124:Dark Elf: Tomb
+125:Dark Elf: Reformatory
+126:Dark Elf: Gravestone
+127:Dark Elf: Tree of Pain
+128:Dark Elf: Brood (level 1)
+129:Dark Elf: Brood (level 2)
+130:Dark Elf: Brood (level 3)
+131:Dark Elf: Gallery
+132:Dark Elf: Void
+133:Dark Elf: Kargothian Gate
+134:Fey: Magic Pool
+135:Fey: Dreamhold (level 1)
+136:Fey: Dreamhold (level 2)
+137:Fey: Dreamhold (level 3)
+138:Fey: Dreamhold (level 4)
+139:Fey: Dreamhold (level 5)
+140:Fey: Faerie Ring
+141:Fey: Orb of Wonder
+142:Fey: Rainbow
+143:Fey: Unicorn Grove
+144:Fey: Tome
+145:Fey: Nest (level 1)
+146:Fey: Nest (level 2)
+147:Fey: Nest (level 3)
+148:Dark Dwarf: Furnace (level 1)
+149:Dark Dwarf: Furnace (level 2)
+150:Dark Dwarf: Furnace (level 3)
+151:Dark Dwarf: Furnace (level 4)
+152:Dark Dwarf: Furnace (level 5)
+153:Dark Dwarf: Guild
+154:Dark Dwarf: Siege Workshop
+155:Dark Dwarf: Ancestral Hall
+156:Dark Dwarf: Mortar
+157:Dark Dwarf: Hall of Golems
+158:Dark Dwarf: Trader
+159:Dark Dwarf: Supply Depot
+160:Dark Dwarf: Eyrie (level 1)
+161:Dark Dwarf: Eyrie (level 2)
+162:Dark Dwarf: Eyrie (level 3)
+163:Daemon: Brood (level 1)
+164:Daemon: Brood (level 2)
+165:Daemon: Brood (level 3)
+166:Daemon: Doomspire (level 1)
+167:Daemon: Doomspire (level 2)
+168:Daemon: Doomspire (level 3)
+169:Daemon: Doomspire (level 4)
+170:Daemon: Doomspire (level 5)
+171:Daemon: Gallows
+172:Daemon: Portal
+173:Daemon: Pit
+174:Daemon: Summoning Tower (level 1)
+175:Daemon: Summoning Tower (level 2)
+176:Daemon: Summoning Tower (level 3)
+177:Daemon: Lightning Spire (level 1)
+178:Daemon: Lightning Spire (level 2)
+179:Daemon: Chaos Shrine
+180:Empire: Palace (level 1)
+181:Empire: Palace (level 2)
+182:Empire: Palace (level 3)
+183:Empire: Palace (level 4)
+184:Empire: Palace (level 5)
+185:Empire: Barracks
+186:Empire: Library
+187:Empire: Archway
+188:Empire: Elephant Trainer
+189:Empire: Blacksmith
+190:Empire: Granary
+191:Empire: Quartermaster
+192:Empire: Eyrie (level 1)
+193:Empire: Eyrie (level 2)
+194:Empire: Eyrie (level 3)
+195:Ssrathi: Sun Temple (level 1)
+196:Ssrathi: Sun Temple (level 2)
+197:Ssrathi: Sun Temple (level 3)
+198:Ssrathi: Sun Temple (level 4)
+199:Ssrathi: Sun Temple (level 5)
+200:Ssrathi: Worker Sect
+201:Ssrathi: Warrior Sect
+202:Ssrathi: Saurus Pen
+203:Ssrathi: Scrying Pool
+204:Ssrathi: Religious Sect
+205:Ssrathi: Sacred Pool
+206:Ssrathi: Hatchery
+207:Ssrathi: Nest (level 1)
+208:Ssrathi: Nest (level 2)
+209:Ssrathi: Nest (level 3)
+210:Swarm: Brood (level 1)
+211:Swarm: Brood (level 2)
+212:Swarm: Brood (level 3)
+213:Swarm: Dunekeep (level 1)
+214:Swarm: Dunekeep (level 2)
+215:Swarm: Dunekeep (level 3)
+216:Swarm: Dunekeep (level 4)
+217:Swarm: Dunekeep (level 5)
+218:Swarm: Hive (level 1)
+219:Swarm: Hive (level 2)
+220:Swarm: Hive (level 3)
+221:Swarm: Hive (level 4)
+222:Swarm: Hive (level 5)
+223:Swarm: Burial Hall
+224:Swarm: Egg Chamber
+225:Swarm: Watcher
+226:Swarm: Queen
+227:Swarm: Shrine of Melkor
+228:Plaguelords: Brood (level 1)
+229:Plaguelords: Brood (level 2)
+230:Plaguelords: Brood (level 3)
+231:Plaguelords: Hall of Plague (level 1)
+232:Plaguelords: Hall of Plague (level 2)
+233:Plaguelords: Hall of Plague (level 3)
+234:Plaguelords: Hall of Plague (level 4)
+235:Plaguelords: Hall of Plague (level 5)
+236:Plaguelords: Cess Pool
+237:Plaguelords: Temple of Eyes
+238:Plaguelords: Laboratory
+239:Plaguelords: Plague Pile
+240:Plaguelords: Casket
+241:Plaguelords: Hydra Cave
+242:Plaguelords: Plague Shrine
+243:Plaguelords: Ice Cave
+244:Plaguelords: Fire Cave
+245:Mine: Gold Mine (level 1)
+246:Mine: Gold Mine (level 2)
+247:Mine: Gold Mine (level 3)
+248:Mine: Crystal Mine (level 1)
+249:Mine: Crystal Mine (level 2)
+250:Mine: Crystal Mine (level 3)
+251:Mine: Ore Mine (level 1)
+252:Mine: Ore Mine (level 2)
+253:Mine: Ore Mine (level 3)
+254:Mine: Quarry (level 1)
+255:Mine: Quarry (level 2)
+256:Mine: Quarry (level 3)
+257:Tower (Knight)
+258:Tower (Dwarf)
+259:Tower (Undead)
+260:Tower (Barbarian)
+261:Tower (Minotaur)
+262:Tower (Orc)
+263:Tower (High Elf)
+264:Tower (Wood Elf)
+265:Tower (Dark Elf)
+266:Crystal Tower (Fey)
+267:Tower (D. Dwarf)
+268:Tower (Daemon)
+269:Tower (Empire)
+270:Tower (Ssrathi)
+271:Tower (Swarm)
+272:Tower (Plague)
+273:Walls: Rampart
+274:Walls: Walls (2x2 good)
+275:Walls: Walls (2x1 good)
+276:Walls: Walls (1x2 good)
+277:Walls: Walls (2x2 neut.)
+278:Walls: Walls (2x1 neut.)
+279:Walls: Walls (1x2 neut.)
+280:Walls: Walls (2x2 evil)
+281:Walls: Walls (2x1 evil)
+282:Walls: Walls (1x2 evil)
+283:Neutral: Bandit Lair
+284:Neutral: Black Portal
+285:Neutral: Celestial Temple
+286:Neutral: Circle of Power
+287:Neutral: Clay Guardian
+288:Neutral: Elemental Temple
+289:Neutral: Gnoll Lair
+290:Neutral: Goblin Lair
+291:Neutral: Harpy Lair
+292:Neutral: Infernal Temple
+293:Neutral: Iron Guardian
+294:Neutral: Mausoleum
+295:Neutral: Shop
+296:Neutral: Shrine
+297:Neutral: Snake Temple
+298:Neutral: Spider Lair
+299:Neutral: Stone Guardian
+300:Neutral: Undead Lair
+301:Neutral: Wall of Ice
+302:Neutral: Wall of Thorns
+]==]
+
+local function rd(a)
+  local v = readInteger(a)
+  if v == nil then return nil end
+  if v &gt;= 0x80000000 then v = v - 0x100000000 end
+  return v
+end
+D.rd = rd
+
+-- ===== coordinate math: edit here after a live test =====
+-- Game facts (static analysis): map object = [0x74C400]; view origin tile at +0x232BF4/+0x232BF8,
+-- view size in tiles at +0x232BFC/+0x232C00, map size at +0x232BE4/+0x232BE8,
+-- fine scroll px at +0x232C14/+0x232C18. Tiles are 32 x 24 px. Mouse = game's own GetCursorPos (hook).
+function D.view()
+  local map = rd(0x0074C400)
+  if map == nil or map == 0 then return nil end
+  local v = {
+    x = rd(map + 0x232BF4), y = rd(map + 0x232BF8),
+    w = rd(map + 0x232BFC), h = rd(map + 0x232C00),
+    mw = rd(map + 0x232BE4), mh = rd(map + 0x232BE8),
+    fx = rd(map + 0x232C14) or 0, fy = rd(map + 0x232C18) or 0 }
+  if v.x == nil or v.y == nil or v.mw == nil or v.mh == nil or v.mw &lt;= 0 or v.mh &lt;= 0 then return nil end
+  return v
+end
+function D.clamp(v, tx, ty)
+  if tx &lt; 0 then tx = 0 elseif tx &gt; v.mw - 1 then tx = v.mw - 1 end
+  if ty &lt; 0 then ty = 0 elseif ty &gt; v.mh - 1 then ty = v.mh - 1 end
+  return tx, ty
+end
+function D.cursorTile()
+  local v = D.view(); if not v then return nil end
+  local mx, my = rd('dzmx'), rd('dzmy')
+  local ox, oy = rd('dzoffx') or 0, rd('dzoffy') or 0
+  local tw, th = rd('dztw') or 32, rd('dzth') or 24
+  if mx == nil or my == nil or tw &lt;= 0 or th &lt;= 0 then return nil end
+  local px, py = mx - ox, my - oy
+  if px &lt; 0 or py &lt; 0 then return nil end
+  if v.w ~= nil and v.h ~= nil and v.w &gt; 0 and v.h &gt; 0 then
+    if px &gt;= v.w * tw or py &gt;= v.h * th then return nil end -- cursor over the interface
+  end
+  if (rd('dzfine') or 0) ~= 0 then px = px + v.fx; py = py + v.fy end
+  return D.clamp(v, v.x + px // tw, v.y + py // th)
+end
+function D.centerTile()
+  local v = D.view(); if not v or v.w == nil or v.h == nil then return nil end
+  return D.clamp(v, v.x + v.w // 2, v.y + v.h // 2)
+end
+-- ===== end coordinate math =====
+
+function D.spawn()
+  if getOpenedProcessID() == 0 or getAddressSafe('dzreq') == nil then return end
+  if getForegroundProcess ~= nil and getForegroundProcess() ~= getOpenedProcessID() then return end
+  if (rd('dzreq') or 0) &gt; 0 then writeInteger('dzlast', 8) return end
+  local code = D.units[rd('dzpick') or -1]
+  if code == nil then writeInteger('dzlast', 5) return end
+  local tx, ty
+  if rd('dzwhere') == 1 then tx, ty = D.centerTile() else tx, ty = D.cursorTile() end
+  if tx == nil then writeInteger('dzlast', 6) return end
+  local n = rd('dzcount') or 1
+  if n &lt; 1 then n = 1 elseif n &gt; 20 then n = 20 end
+  if (rd('dzsent') or 0) + n &gt; D.SESSION_CAP then writeInteger('dzlast', 7) return end
+  writeInteger('dzcode', code)
+  writeInteger('dzx', tx)
+  writeInteger('dzy', ty)
+  writeInteger('dzreq', n) -- written last: the frame hook acts on it
+end
+
+function D.bcount()
+  local m = rd(0x059603D0)
+  if m == nil or m == 0 then return nil end
+  local w = readSmallInteger and readSmallInteger(m + 0x0C) or nil
+  if w == nil then w = (rd(m + 0x0C) or 0) % 0x10000 end
+  return w
+end
+
+function D.spawnB()
+  if getOpenedProcessID() == 0 or getAddressSafe('dzbreq') == nil then return end
+  if getForegroundProcess ~= nil and getForegroundProcess() ~= getOpenedProcessID() then return end
+  if (rd('dzbreq') or 0) &gt; 0 then writeInteger('dzblast', 8) return end
+  local code = D.blds[rd('dzbpick') or -1]
+  if code == nil then writeInteger('dzblast', 5) return end
+  local tx, ty
+  if rd('dzwhere') == 1 then tx, ty = D.centerTile() else tx, ty = D.cursorTile() end
+  if tx == nil then writeInteger('dzblast', 6) return end
+  if (rd('dzbsent') or 0) + 1 &gt; D.BSESSION_CAP then writeInteger('dzblast', 7) return end
+  D.bpend = { n = D.bcount(), t = os.clock(), f = rd('dzbsent') or 0 }
+  writeInteger('dzbcode', code)
+  writeInteger('dzbx', tx)
+  writeInteger('dzby', ty)
+  writeInteger('dzbreq', 1) -- written last: the frame hook acts on it
+end
+
+-- after a building request, see whether the game really placed it (it silently refuses blocked spots)
+function D.checkB()
+  local p = D.bpend
+  if p == nil then return end
+  local sent = rd('dzbsent') or 0
+  if sent == p.f then                       -- hook has not sent it (yet), or refused it
+    if (rd('dzbreq') or 0) == 0 then D.bpend = nil end
+    if os.clock() - p.t &gt; 3 then D.bpend = nil end
+    return
+  end
+  local n = D.bcount()
+  if n ~= nil and p.n ~= nil and n &gt; p.n then writeInteger('dzblast', 1); D.bpend = nil return end
+  if os.clock() - p.t &gt; 1.5 then writeInteger('dzblast', 9); D.bpend = nil end
+end
+
+-- level up the selected units (the frame hook does the work through the game's own XP routine)
+D.MAXLEVEL = 20
+function D.levelUp()
+  if getOpenedProcessID() == 0 or getAddressSafe('dzlreq') == nil then return end
+  local p = rd('dzlpick') or 0
+  if p &lt; 1 or p &gt; D.MAXLEVEL then writeInteger('dzllast', 6) return end
+  writeInteger('dzlvl', p - 1)          -- the game counts levels from 0
+  writeInteger('dzlreq', 1)             -- written last: the frame hook acts on it
+end
+function D.levelKey()
+  if getForegroundProcess ~= nil and getForegroundProcess() ~= getOpenedProcessID() then return end
+  D.levelUp()
+end
+function D.setLKey(k)
+  if D.lhk then D.lhk.destroy(); D.lhk = nil end
+  D.lkey = k
+  if k ~= nil and k &gt; 0 then
+    D.lhk = createHotkey(function() pcall(D.levelKey) end, k)
+    D.lhk.DelayBetweenActivate = 400
+  end
+end
+
+-- one key: spawns whatever Type is set to
+function D.press()
+  if (rd('dztype') or 0) == 1 then D.spawnB() else D.spawn() end
+end
+
+function D.setKey(k)
+  if D.hk then D.hk.destroy(); D.hk = nil end
+  D.key = k
+  if k ~= nil and k &gt; 0 then
+    D.hk = createHotkey(function() pcall(D.press) end, k)
+    D.hk.DelayBetweenActivate = 400
+  end
+end
+
+-- the Summon record: one record, its address and list follow Type
+-- (Units -&gt; dzpick + unit list, Buildings -&gt; dzbpick + building list; each keeps its own pick)
+D.ROOT = 'Deity Zenith - Enable'
+function D.isRoot(r)
+  local d = r.Description
+  return d == D.ROOT or d == 'Deity Zenith'
+end
+
+-- section header rows: plain text, they can never be ticked
+D.HEADERS = { ['---Summon Units/Buildings---'] = true, ['---Level Up Selected Units---'] = true, ['---Other---'] = true }
+function D.lockHeaders()
+  local al = getAddressList()
+  if al == nil then return end
+  for i = 0, al.Count - 1 do
+    local r = al[i]
+    if D.HEADERS[r.Description] and r.Parent ~= nil and D.isRoot(r.Parent) then
+      r.OnActivate = function(mr, before, cur) return not before end   -- refuse the tick
+      if r.Active then pcall(function() r.Active = false end) end
+    end
+  end
+end
+
+function D.summonRec()
+  local mr = D.smr
+  if mr ~= nil then
+    local ok, d = pcall(function() return mr.Description end)
+    if ok and d == 'Summon' then return mr end
+    D.smr = nil
+  end
+  local al = getAddressList()
+  if al == nil then return nil end
+  for i = 0, al.Count - 1 do
+    local r = al[i]
+    if r.Description == 'Summon' and r.Parent ~= nil and D.isRoot(r.Parent) then
+      D.smr = r
+      return r
+    end
+  end
+  return nil
+end
+
+function D.applyType(t)
+  local mr = D.summonRec()
+  if mr == nil then return false end
+  local addr, list
+  if t == 1 then addr, list = 'dzbpick', D.bldList else addr, list = 'dzpick', D.unitList end
+  if mr.DropDownList.Text ~= list then mr.DropDownList.Text = list end
+  if mr.Address ~= addr then mr.Address = addr end
+  return true
+end
+
+function D.syncType()
+  local t = rd('dztype') or 0
+  if t ~= 1 then t = 0 end
+  if t ~= D.type then
+    if D.applyType(t) then D.type = t end
+  end
+end
+
+function D.tick()
+  if getAddressSafe('dzkey') == nil then return end
+  local k = rd('dzkey')
+  local lk = rd('dzlkey')
+  -- same key picked for both: the one changed last keeps it, the other turns Off
+  if k ~= nil and k &gt; 0 and k == lk then
+    if lk ~= D.lkey and k == D.key then
+      writeInteger('dzkey', 0); k = 0
+    else
+      writeInteger('dzlkey', 0); lk = 0
+    end
+  end
+  if k ~= D.key then D.setKey(k) end
+  if lk ~= D.lkey then D.setLKey(lk) end
+  pcall(D.syncType)
+  pcall(D.checkB)
+  local tx, ty = D.cursorTile()
+  writeInteger('dzctx', tx or -1)
+  writeInteger('dzcty', ty or -1)
+end
+
+function D.stop()
+  if D.timer then D.timer.destroy(); D.timer = nil end
+  if D.hk then D.hk.destroy(); D.hk = nil end
+  if D.lhk then D.lhk.destroy(); D.lhk = nil end
+  D.key = nil; D.lkey = nil; D.bpend = nil; D.type = nil
+  pcall(D.applyType, 0)    -- leave the table showing the unit list (as saved)
+  if getAddressSafe('dzreq') ~= nil then pcall(writeInteger, 'dzreq', 0) end
+  if getAddressSafe('dzbreq') ~= nil then pcall(writeInteger, 'dzbreq', 0) end
+  if getAddressSafe('dzlreq') ~= nil then pcall(writeInteger, 'dzlreq', 0) end
+end
+
+pcall(D.lockHeaders)
+D.timer = createTimer(nil, false)
+D.timer.Interval = 200
+D.timer.OnTimer = function() pcall(D.tick) end
+D.timer.Enabled = true
+{$asm}
+
+assert(00458BB0,A1 4C 7D A2 00)
+alloc(dzmem,1000)
+label(dzhook)
+label(dzskip)
+label(dzside_ok)
+label(dzside_ok_pre)
+label(dzf2)
+label(dzf3)
+label(dzf4)
+label(dzf5)
+label(dzreq)
+label(dzpick)
+label(dzside)
+label(dzsidev)
+label(dzcount)
+label(dzwhere)
+label(dzkey)
+label(dzcode)
+label(dzx)
+label(dzy)
+label(dzmx)
+label(dzmy)
+label(dzctx)
+label(dzcty)
+label(dzoffx)
+label(dzoffy)
+label(dztw)
+label(dzth)
+label(dzfine)
+label(dzguard)
+label(dzcap)
+label(dzframes)
+label(dzlast)
+label(dzsent)
+label(dzpl)
+label(dzbld)
+label(dzbside_ok)
+label(dzbf2)
+label(dzbf3)
+label(dzbf4)
+label(dzbf5)
+label(dzbpl)
+label(dzbguard_ok)
+label(dzbreq)
+label(dzbpick)
+label(dztype)
+label(dzbcode)
+label(dzbx)
+label(dzby)
+label(dzbcap)
+label(dzblast)
+label(dzbsent)
+label(dzbside)
+label(dzlreq)
+label(dzlpick)
+label(dzlvl)
+label(dzlkey)
+label(dzllast)
+label(dzlcnt)
+label(dzlsel)
+label(dzlhero)
+label(dzlvdone)
+label(dzlf3)
+label(dzlg_ok)
+label(dzlcopy)
+label(dzlcopied)
+label(dzlloop)
+label(dzlnothero)
+label(dzldone)
+label(dzlbuf)
+label(dzlclamp_ok)
+registersymbol(dzreq)
+registersymbol(dzpick)
+registersymbol(dzside)
+registersymbol(dzsidev)
+registersymbol(dzcount)
+registersymbol(dzwhere)
+registersymbol(dzkey)
+registersymbol(dzcode)
+registersymbol(dzx)
+registersymbol(dzy)
+registersymbol(dzmx)
+registersymbol(dzmy)
+registersymbol(dzctx)
+registersymbol(dzcty)
+registersymbol(dzoffx)
+registersymbol(dzoffy)
+registersymbol(dztw)
+registersymbol(dzth)
+registersymbol(dzfine)
+registersymbol(dzguard)
+registersymbol(dzcap)
+registersymbol(dzframes)
+registersymbol(dzlast)
+registersymbol(dzsent)
+registersymbol(dzbreq)
+registersymbol(dzbpick)
+registersymbol(dztype)
+registersymbol(dzbcode)
+registersymbol(dzbx)
+registersymbol(dzby)
+registersymbol(dzbcap)
+registersymbol(dzblast)
+registersymbol(dzbsent)
+registersymbol(dzbside)
+registersymbol(dzlreq)
+registersymbol(dzlpick)
+registersymbol(dzlvl)
+registersymbol(dzlkey)
+registersymbol(dzllast)
+registersymbol(dzlcnt)
+registersymbol(dzlsel)
+registersymbol(dzlhero)
+
+dzmem:
+dzhook:
+  pushad
+  pushfd
+  cld
+  inc dword ptr [dzframes]
+  push dzmx                      // POINT {dzmx, dzmy}
+  call dword ptr [005EA1F0]      // GetCursorPos via the game's import (stdcall)
+  // ================= level-up request (all selected units, one frame) =================
+  cmp dword ptr [dzlreq],0
+  je dzlvdone
+  mov dword ptr [dzlreq],0
+  mov dword ptr [dzlcnt],0
+  mov dword ptr [dzlsel],0
+  mov dword ptr [dzlhero],0
+  cmp dword ptr [0074C400],0     // map
+  je dzlf3
+  mov eax,[00AFD4CC]             // unit manager; [mgr+0] = selection list head
+  test eax,eax
+  je dzlf3
+  cmp dword ptr [dzguard],0
+  je dzlg_ok
+  cmp dword ptr [0060C368],1     // map view active
+  jne dzlf3
+dzlg_ok:
+  mov esi,[eax]
+  xor ebx,ebx
+dzlcopy:                         // copy the list first (max 64), then work on the copy
+  test esi,esi
+  je dzlcopied
+  cmp ebx,#64
+  jae dzlcopied
+  mov [ebx*4+dzlbuf],esi
+  inc ebx
+  mov esi,[esi+1C]               // next selected object
+  jmp dzlcopy
+dzlcopied:
+  xor edi,edi
+dzlloop:
+  cmp edi,ebx
+  jae dzldone
+  mov esi,[edi*4+dzlbuf]
+  inc edi
+  mov ecx,esi
+  mov eax,[esi]
+  call dword ptr [eax+28]        // object type, as the game asks it (0 = army unit)
+  test ax,ax
+  jne dzlloop
+  inc dword ptr [dzlsel]
+  cmp byte ptr [esi+B4],0        // hero: levels through the hero record, skip
+  je dzlnothero
+  inc dword ptr [dzlhero]
+  jmp dzlloop
+dzlnothero:
+  cmp byte ptr [esi+1CD],0       // titans never gain XP
+  jne dzlloop
+  cmp dword ptr [esi+24],0       // army object
+  je dzlloop
+  mov edx,[dzlvl]                // target level, 0-based (0..19)
+  cmp edx,#19
+  jle dzlclamp_ok
+  mov edx,#19
+dzlclamp_ok:
+  movsx eax,word ptr [esi+3C]    // current level, 0-based
+  cmp eax,edx
+  jge dzlloop                    // only raise
+  mov eax,[edx*4+005FBC4C]       // XP needed for that level (table at 0x5FBC50)
+  sub eax,[esi+40]               // minus current XP
+  jle dzlloop
+  push eax
+  mov ecx,esi
+  call 00527100                  // the game's own "unit gains XP": levels, stat gains, heal, effects
+  inc dword ptr [dzlcnt]
+  jmp dzlloop
+dzldone:
+  mov dword ptr [dzllast],1
+  cmp dword ptr [dzlcnt],0
+  jne dzlvdone
+  mov dword ptr [dzllast],2      // no unit selected
+  cmp dword ptr [dzlsel],0
+  je dzlvdone
+  mov dword ptr [dzllast],5      // only heroes selected
+  mov eax,[dzlsel]
+  cmp eax,[dzlhero]
+  je dzlvdone
+  mov dword ptr [dzllast],4      // already at or above that level
+  jmp dzlvdone
+dzlf3:
+  mov dword ptr [dzllast],3
+dzlvdone:
+  cmp dword ptr [dzreq],0
+  jle dzbld
+  // --- game state guards ---
+  cmp dword ptr [0074C400],0     // map
+  je dzf3
+  cmp dword ptr [00A27D5C],0     // message system
+  je dzf3
+  cmp dword ptr [00AFD4CC],0     // unit table
+  je dzf3
+  cmp dword ptr [dzguard],0
+  je dzside_ok_pre
+  cmp dword ptr [0060C368],1     // map view active
+  jne dzf3
+dzside_ok_pre:
+  // --- army pool cap (pool is 1000) ---
+  mov eax,[059603D0]             // object manager
+  test eax,eax
+  je dzf3
+  movzx ecx,word ptr [eax+0A]    // live army objects
+  cmp ecx,[dzcap]
+  jae dzf4
+  movzx ecx,word ptr [eax]       // live unit objects
+  cmp ecx,[dzcap]
+  jae dzf4
+  // --- unit code must exist ---
+  push dword ptr [dzcode]
+  call 0040A8B0
+  add esp,4
+  test eax,eax
+  js dzf5
+  // --- side: -1 = my side ---
+  mov eax,[dzside]
+  cmp eax,FFFFFFFF
+  jne dzside_ok
+  mov eax,[00709100]
+dzside_ok:
+  cmp eax,6
+  ja dzf2
+  mov [dzsidev],eax
+  push eax
+  call 004A5CA0                  // same check the game does before its own spawn
+  add esp,4
+  test al,al
+  je dzf2
+  // --- build the 60-byte create-army payload (mirrors 0x4382D0) ---
+  mov edi,dzpl
+  xor eax,eax
+  mov ecx,10
+  rep stosd
+  mov dword ptr [dzpl],FFFFFFFF  // id -1: game assigns id and finds a free tile
+  mov eax,[dzsidev]
+  mov [dzpl+04],eax
+  mov eax,[dzcode]
+  mov [dzpl+08],eax
+  mov ax,[dzx]
+  mov [dzpl+0C],ax
+  mov ax,[dzy]
+  mov [dzpl+0E],ax
+  mov word ptr [dzpl+2B],FFFF
+  mov word ptr [dzpl+2D],FFFF
+  mov byte ptr [dzpl+38],FF
+  // --- send it exactly like the game (0x438696..0x4386B6) ---
+  push 1
+  push 0
+  push 0
+  push 0
+  push 1
+  push 0049EB60
+  push 3C
+  push dzpl
+  push FA
+  push 1
+  mov ecx,[00A27D5C]
+  call 004B1170
+  dec dword ptr [dzreq]
+  inc dword ptr [dzsent]
+  mov dword ptr [dzlast],1
+  jmp dzbld
+dzf2:
+  mov dword ptr [dzlast],2
+  mov dword ptr [dzreq],0
+  jmp dzbld
+dzf3:
+  mov dword ptr [dzlast],3
+  mov dword ptr [dzreq],0
+  jmp dzbld
+dzf4:
+  mov dword ptr [dzlast],4
+  mov dword ptr [dzreq],0
+  jmp dzbld
+dzf5:
+  mov dword ptr [dzlast],5
+  mov dword ptr [dzreq],0
+  // ================= building request (one per frame) =================
+dzbld:
+  cmp dword ptr [dzbreq],0
+  jle dzskip
+  cmp dword ptr [0074C400],0     // map
+  je dzbf3
+  cmp dword ptr [00A27D5C],0     // message system
+  je dzbf3
+  cmp dword ptr [00AFD4CC],0     // unit/side table (id allocation)
+  je dzbf3
+  cmp dword ptr [dzguard],0
+  je dzbguard_ok
+  cmp dword ptr [0060C368],1     // map view active
+  jne dzbf3
+dzbguard_ok:
+  // --- building pool cap (pool is 500; the handler does not null-check a full pool) ---
+  mov eax,[059603D0]             // object manager
+  test eax,eax
+  je dzbf3
+  movzx ecx,word ptr [eax+0C]    // live building objects
+  cmp ecx,[dzbcap]
+  jae dzbf4
+  movzx ecx,word ptr [eax+02]    // live building slots
+  cmp ecx,[dzbcap]
+  jae dzbf4
+  // --- building code must exist in the building table ---
+  push dword ptr [dzbcode]
+  call 0040AA50
+  add esp,4
+  test eax,eax
+  je dzbf5
+  // --- side: -1 = my side ---
+  mov eax,[dzside]
+  cmp eax,FFFFFFFF
+  jne dzbside_ok
+  mov eax,[00709100]
+dzbside_ok:
+  cmp eax,6
+  ja dzbf2
+  mov [dzbside],eax
+  push eax
+  call 004A5CA0
+  add esp,4
+  test al,al
+  je dzbf2
+  // --- 36-byte create-building payload (same layout the game sends at 0x4AB2CA / 0x4A71F0) ---
+  mov edi,dzbpl
+  xor eax,eax
+  mov ecx,9
+  rep stosd
+  mov dword ptr [dzbpl],FFFFFFFF // id -1: game checks the footprint (0x435900), assigns an id, re-sends
+  mov eax,[dzbside]
+  mov [dzbpl+04],eax
+  mov eax,[dzbcode]
+  mov [dzbpl+08],eax
+  mov ax,[dzbx]
+  mov [dzbpl+0C],ax
+  mov ax,[dzby]
+  mov [dzbpl+0E],ax
+  // +1C effect = 0, +20 lifetime = 0 (permanent)
+  push 1
+  push 0
+  push 0
+  push 0
+  push 1
+  push 0049EB60
+  push 24
+  push dzbpl
+  push 1F9
+  push 1
+  mov ecx,[00A27D5C]
+  call 004B1170
+  mov dword ptr [dzbreq],0
+  inc dword ptr [dzbsent]
+  mov dword ptr [dzblast],0A     // sent; Lua turns this into Built / Blocked
+  jmp dzskip
+dzbf2:
+  mov dword ptr [dzblast],2
+  mov dword ptr [dzbreq],0
+  jmp dzskip
+dzbf3:
+  mov dword ptr [dzblast],3
+  mov dword ptr [dzbreq],0
+  jmp dzskip
+dzbf4:
+  mov dword ptr [dzblast],4
+  mov dword ptr [dzbreq],0
+  jmp dzskip
+dzbf5:
+  mov dword ptr [dzblast],5
+  mov dword ptr [dzbreq],0
+dzskip:
+  popfd
+  popad
+  mov eax,[00A27D4C]             // original instruction
+  jmp 00458BB5
+
+dzreq:
+  dd 0
+dzpick:
+  dd #0
+dzside:
+  dd FFFFFFFF
+dzsidev:
+  dd 0
+dzcount:
+  dd 1
+dzwhere:
+  dd 0
+dzkey:
+  dd #121
+dzcode:
+  dd 0
+dzx:
+  dd 0
+dzy:
+  dd 0
+dzmx:
+  dd 0
+dzmy:
+  dd 0
+dzctx:
+  dd FFFFFFFF
+dzcty:
+  dd FFFFFFFF
+dzoffx:
+  dd 0
+dzoffy:
+  dd 0
+dztw:
+  dd #32
+dzth:
+  dd #24
+dzfine:
+  dd 1
+dzguard:
+  dd 1
+dzcap:
+  dd #850
+dzframes:
+  dd 0
+dzlast:
+  dd 0
+dzsent:
+  dd 0
+dzbreq:
+  dd 0
+dzbpick:
+  dd #0
+dztype:
+  dd 0
+dzbcode:
+  dd 0
+dzbx:
+  dd 0
+dzby:
+  dd 0
+dzbcap:
+  dd #450
+dzblast:
+  dd 0
+dzbsent:
+  dd 0
+dzbside:
+  dd 0
+dzlreq:
+  dd 0
+dzlpick:
+  dd #20
+dzlvl:
+  dd 0
+dzlkey:
+  dd #122
+dzllast:
+  dd 0
+dzlcnt:
+  dd 0
+dzlsel:
+  dd 0
+dzlhero:
+  dd 0
+dzlbuf:
+  db 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+  db 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+  db 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+  db 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+  db 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+  db 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+  db 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+  db 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+  db 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+  db 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+  db 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+  db 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+  db 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+  db 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+  db 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+  db 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+dzbpl:
+  db 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+  db 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+  db 00 00 00 00
+dzpl:
+  db 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+  db 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+  db 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+  db 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+
+00458BB0:
+  jmp dzhook
+
+[DISABLE]
+{$lua}
+if syntaxcheck then return end
+if DZ and DZ.stop then pcall(DZ.stop) end
+{$asm}
+
+00458BB0:
+  db A1 4C 7D A2 00
+// hook memory is kept (not deallocated) so a frame in flight can never return into freed memory
+unregistersymbol(dzreq)
+unregistersymbol(dzpick)
+unregistersymbol(dzside)
+unregistersymbol(dzsidev)
+unregistersymbol(dzcount)
+unregistersymbol(dzwhere)
+unregistersymbol(dzkey)
+unregistersymbol(dzcode)
+unregistersymbol(dzx)
+unregistersymbol(dzy)
+unregistersymbol(dzmx)
+unregistersymbol(dzmy)
+unregistersymbol(dzctx)
+unregistersymbol(dzcty)
+unregistersymbol(dzoffx)
+unregistersymbol(dzoffy)
+unregistersymbol(dztw)
+unregistersymbol(dzth)
+unregistersymbol(dzfine)
+unregistersymbol(dzguard)
+unregistersymbol(dzcap)
+unregistersymbol(dzframes)
+unregistersymbol(dzlast)
+unregistersymbol(dzsent)
+unregistersymbol(dzbreq)
+unregistersymbol(dzbpick)
+unregistersymbol(dztype)
+unregistersymbol(dzbcode)
+unregistersymbol(dzbx)
+unregistersymbol(dzby)
+unregistersymbol(dzbcap)
+unregistersymbol(dzblast)
+unregistersymbol(dzbsent)
+unregistersymbol(dzbside)
+unregistersymbol(dzlreq)
+unregistersymbol(dzlpick)
+unregistersymbol(dzlvl)
+unregistersymbol(dzlkey)
+unregistersymbol(dzllast)
+unregistersymbol(dzlcnt)
+unregistersymbol(dzlsel)
+unregistersymbol(dzlhero)
+</AssemblerScript><CheatEntries><CheatEntry><ID>35</ID><Description>"---Summon Units/Buildings---"</Description><GroupHeader>1</GroupHeader></CheatEntry><CheatEntry><ID>36</ID><Description>"Summon Type"</Description><DropDownList DescriptionOnly="1" DisplayValueAsItem="1">0:Units
+1:Buildings
+</DropDownList><ShowAsSigned>1</ShowAsSigned><VariableType>4 Bytes</VariableType><Address>dztype</Address></CheatEntry><CheatEntry><ID>37</ID><Description>"Summon"</Description><DropDownList DescriptionOnly="1" DisplayValueAsItem="1">0:Knight: Archon
+1:Knight: Dancing Sword
+2:Knight: Eagle
+3:Knight: Inquisitor
+4:Knight: Knight
+5:Knight: Knight Champion
+6:Knight: Knight Lord
+7:Knight: Peasant
+8:Knight: Pegasus
+9:Knight: Squire
+10:Knight: Swordsman
+11:Dwarf: Ballista
+12:Dwarf: Battering Ram
+13:Dwarf: Catapult
+14:Dwarf: Dwarf Berserker
+15:Dwarf: Dwarf Crossbow
+16:Dwarf: Dwarf Infantry
+17:Dwarf: Dwarf Lord
+18:Dwarf: Dwarf Runner
+19:Dwarf: Dwarven Smith
+20:Dwarf: Eagle
+21:Dwarf: Griffon
+22:Dwarf: Khazrimi Guard
+23:Dwarf: Runelord
+24:Undead: Bat
+25:Undead: Bone Catapult
+26:Undead: Doom Knight
+27:Undead: Harpy
+28:Undead: Liche
+29:Undead: Shadow
+30:Undead: Skeleton
+31:Undead: Skeleton Cavalry
+32:Undead: Slayer Knight
+33:Undead: Thrall
+34:Undead: Vampire
+35:Undead: Wight
+36:Undead: Wraith
+37:Undead: Zombie
+38:Barbarian: Barbarian
+39:Barbarian: Eagle
+40:Barbarian: Lightning Hawk
+41:Barbarian: Pegasus
+42:Barbarian: Reaver
+43:Barbarian: Rider
+44:Barbarian: Thrall
+45:Barbarian: War Dog
+46:Barbarian: Warlord
+47:Minotaur: Basilisk
+48:Minotaur: Bat
+49:Minotaur: Battering Ram
+50:Minotaur: Catapult
+51:Minotaur: Gnoll
+52:Minotaur: Griffon
+53:Minotaur: Minotaur
+54:Minotaur: Minotaur Axe Thrower
+55:Minotaur: Minotaur King
+56:Minotaur: Minotaur Shaman
+57:Minotaur: Sheep
+58:Minotaur: Thrall
+59:Orc: Basilisk
+60:Orc: Bat
+61:Orc: Giant
+62:Orc: Goblin
+63:Orc: Goblin Chief
+64:Orc: Goblin Shaman
+65:Orc: Gobshooter
+66:Orc: Harpy
+67:Orc: Kobold
+68:Orc: Kobold Sniper
+69:Orc: Ogre
+70:Orc: Orc
+71:Orc: Thrall
+72:Orc: Troll
+73:Orc: Wolfrider
+74:High Elf: Ancient Wisp
+75:High Elf: Dragon Knight
+76:High Elf: Ice Maiden
+77:High Elf: Iceguard
+78:High Elf: Longbow
+79:High Elf: Manticore
+80:High Elf: Moonguard
+81:High Elf: Mystic
+82:High Elf: Pegasus
+83:High Elf: Phoenix
+84:High Elf: Spider
+85:High Elf: Unicorn
+86:High Elf: Wisp
+87:Wood Elf: Ancient Treant
+88:Wood Elf: Ancient Wisp
+89:Wood Elf: Druid
+90:Wood Elf: Dryad
+91:Wood Elf: Elven Hunter
+92:Wood Elf: Forestguard
+93:Wood Elf: Gladewarden
+94:Wood Elf: Griffon
+95:Wood Elf: Phoenix
+96:Wood Elf: Pixie
+97:Wood Elf: Sprite
+98:Wood Elf: Treant
+99:Wood Elf: Wisp
+100:Wood Elf: Woodrider
+101:Dark Elf: Ancient Wisp
+102:Dark Elf: Assassin
+103:Dark Elf: Blackguard
+104:Dark Elf: Daemon
+105:Dark Elf: Dark Archer
+106:Dark Elf: Dark Infantry
+107:Dark Elf: Dark Rider
+108:Dark Elf: Harpy
+109:Dark Elf: Imp
+110:Dark Elf: Phoenix
+111:Dark Elf: Queen Spider
+112:Dark Elf: Skeleton
+113:Dark Elf: Sorceror
+114:Dark Elf: Spider Priestess
+115:Dark Elf: Thrall
+116:Dark Elf: Wisp
+117:Fey: Banshee
+118:Fey: Faerie Dragon
+119:Fey: Leprechaun
+120:Fey: Lightning Hawk
+121:Fey: Oakman
+122:Fey: Spriggan
+123:Fey: Sylph
+124:Dark Dwarf: Bronze Golem
+125:Dark Dwarf: Engineer
+126:Dark Dwarf: Firebomb
+127:Dark Dwarf: Flame Cannon
+128:Dark Dwarf: Hellbore
+129:Dark Dwarf: Iron Golem
+130:Dark Dwarf: Shadow
+131:Dark Dwarf: Stone Golem
+132:Dark Dwarf: Wraith
+133:Dark Dwarf: Wyvern
+134:Daemon: Daemon
+135:Daemon: Firebat
+136:Daemon: Harpy
+137:Daemon: Imp
+138:Daemon: Nightmare
+139:Daemon: Quasit
+140:Daemon: Reaper
+141:Daemon: Salamander
+142:Daemon: Soul
+143:Daemon: Succubus
+144:Daemon: Summoner
+145:Empire: Archer
+146:Empire: Black Mage
+147:Empire: Elephant
+148:Empire: Halberdier
+149:Empire: Mercenary
+150:Empire: Peasant
+151:Empire: Pikeman
+152:Empire: Red Mage
+153:Empire: White Mage
+154:Ssrathi: Chameleon
+155:Ssrathi: Dragonfly
+156:Ssrathi: Lizard Rider
+157:Ssrathi: Naga
+158:Ssrathi: Pterodactyl
+159:Ssrathi: Snakeman
+160:Ssrathi: Snakepriest
+161:Ssrathi: Triceratops
+162:Ssrathi: Tyrannosaurus
+163:Swarm: Giant Ant
+164:Swarm: Husk
+165:Swarm: Scarab
+166:Swarm: Scorpion
+167:Swarm: Scorpionman
+168:Swarm: Scorpionpriest
+169:Swarm: Wasp
+170:Plaguelords: Cryohydra
+171:Plaguelords: Eye of Flame
+172:Plaguelords: Gazer
+173:Plaguelords: Ghoul
+174:Plaguelords: Hydra
+175:Plaguelords: Plague Priest
+176:Plaguelords: Pyrohydra
+177:Plaguelords: Slime
+178:Plaguelords: Spore
+179:Plaguelords: Zombie
+180:Elementals: Air Elemental
+181:Elementals: Earth Elemental
+182:Elementals: Fire Elemental
+183:Elementals: Water Elemental
+184:Dragons: Celestial Dragon
+185:Dragons: Dragon
+186:Dragons: Dragonliche
+187:Dragons: Frost Dragon
+188:Dragons: Storm Dragon
+189:Dragons: Swamp Dragon
+190:Titans: Balora
+191:Titans: Gornak Elfeater
+192:Titans: Grond
+193:Titans: Iriki
+194:Titans: Ironbark
+195:Titans: Kargoth
+196:Titans: King Khalid
+197:Titans: King Lunarion
+198:Titans: Lord Antharg
+199:Titans: Lord Bane
+200:Titans: Lord Melkor
+201:Titans: Sirian
+202:Titans: Skull of Sartek
+203:Titans: Tempest
+204:Titans: The Forestmaster
+205:Titans: The Lion Throne
+206:Neutral: Camel
+207:Neutral: Cow
+208:Neutral: Eye of Oros
+209:Neutral: Goose
+210:Neutral: Guardian Skull
+211:Neutral: Penguin
+212:Neutral: Seal
+213:Neutral: Turtle
+214:Hero: Knight Hero
+215:Hero: Dwarf Hero
+216:Hero: Undead Hero
+217:Hero: Barbarian Hero
+218:Hero: Minotaur Hero
+219:Hero: Orc Hero
+220:Hero: High Elf Hero
+221:Hero: Wood Elf Hero
+222:Hero: Dark Elf Hero
+223:Hero: Fey Hero
+224:Hero: Dark Dwarf Hero
+225:Hero: Daemon Hero
+226:Hero: Swarm Hero
+227:Hero: Good Wizard Hero
+228:Hero: Evil Wizard Hero
+229:Hero: Ssrathi Hero
+230:Hero: Imperial Hero
+</DropDownList><ShowAsSigned>1</ShowAsSigned><VariableType>4 Bytes</VariableType><Address>dzpick</Address></CheatEntry><CheatEntry><ID>38</ID><Description>"Side"</Description><DropDownList DescriptionOnly="1" DisplayValueAsItem="1">-1:My side
+0:Side 0
+1:Side 1
+2:Side 2
+3:Side 3
+4:Side 4
+5:Side 5
+6:Side 6 (Neutral)
+</DropDownList><ShowAsSigned>1</ShowAsSigned><VariableType>4 Bytes</VariableType><Address>dzside</Address></CheatEntry><CheatEntry><ID>39</ID><Description>"Count"</Description><DropDownList DescriptionOnly="1" DisplayValueAsItem="1">1:1
+2:2
+3:3
+4:4
+5:5
+6:6
+7:7
+8:8
+9:9
+10:10
+11:11
+12:12
+13:13
+14:14
+15:15
+16:16
+17:17
+18:18
+19:19
+20:20
+</DropDownList><ShowAsSigned>1</ShowAsSigned><VariableType>4 Bytes</VariableType><Address>dzcount</Address></CheatEntry><CheatEntry><ID>40</ID><Description>"Where"</Description><DropDownList DescriptionOnly="1" DisplayValueAsItem="1">0:Cursor
+1:Screen center
+</DropDownList><ShowAsSigned>1</ShowAsSigned><VariableType>4 Bytes</VariableType><Address>dzwhere</Address></CheatEntry><CheatEntry><ID>41</ID><Description>"Summon Key"</Description><DropDownList DescriptionOnly="1" DisplayValueAsItem="1">121:F10
+122:F11
+45:Insert
+36:Home
+35:End
+33:Page Up
+34:Page Down
+19:Pause
+4:Middle mouse
+0:Off
+</DropDownList><ShowAsSigned>1</ShowAsSigned><VariableType>4 Bytes</VariableType><Address>dzkey</Address></CheatEntry><CheatEntry><ID>42</ID><Description>"---Level Up Selected Units---"</Description><GroupHeader>1</GroupHeader></CheatEntry><CheatEntry><ID>43</ID><Description>"Level"</Description><DropDownList DescriptionOnly="1" DisplayValueAsItem="1">1:1
+2:2
+3:3
+4:4
+5:5
+6:6
+7:7
+8:8
+9:9
+10:10
+11:11
+12:12
+13:13
+14:14
+15:15
+16:16
+17:17
+18:18
+19:19
+20:20
+</DropDownList><ShowAsSigned>1</ShowAsSigned><VariableType>4 Bytes</VariableType><Address>dzlpick</Address></CheatEntry><CheatEntry><ID>44</ID><Description>"Level Script"</Description><VariableType>Auto Assembler Script</VariableType><AssemblerScript>[ENABLE]
+{$lua}
+if syntaxcheck then return end
+if DZ and DZ.levelUp then pcall(DZ.levelUp) end
+local t = createTimer(nil, false)
+t.Interval = 150
+t.OnTimer = function(s)
+  s.destroy()
+  local al = getAddressList()
+  if al == nil then return end
+  for i = 0, al.Count - 1 do
+    local r = al[i]
+    if r.Description == 'Level Script' and r.Active then r.Active = false end
+  end
+end
+t.Enabled = true
+{$asm}
+[DISABLE]
+{$lua}
+if syntaxcheck then return end
+{$asm}
+</AssemblerScript></CheatEntry><CheatEntry><ID>45</ID><Description>"Level Up Key"</Description><DropDownList DescriptionOnly="1" DisplayValueAsItem="1">121:F10
+122:F11
+45:Insert
+36:Home
+35:End
+33:Page Up
+34:Page Down
+19:Pause
+4:Middle mouse
+0:Off
+</DropDownList><ShowAsSigned>1</ShowAsSigned><VariableType>4 Bytes</VariableType><Address>dzlkey</Address></CheatEntry><CheatEntry><ID>46</ID><Description>"---Other---"</Description><GroupHeader>1</GroupHeader></CheatEntry><CheatEntry><ID>47</ID><Description>"Diagnostics"</Description><Options moHideChildren="1"/><GroupHeader>1</GroupHeader><CheatEntries><CheatEntry><ID>1</ID><Description>"Hook frames"</Description><ShowAsSigned>1</ShowAsSigned><VariableType>4 Bytes</VariableType><Address>dzframes</Address></CheatEntry><CheatEntry><ID>2</ID><Description>"Last result"</Description><DropDownList DescriptionOnly="1" DisplayValueAsItem="1">0:Idle
+1:Spawned
+2:Side refused
+3:Not in battle
+4:Unit limit
+5:Bad unit
+6:Cursor off map
+7:Session limit
+8:Busy
+</DropDownList><ShowAsSigned>1</ShowAsSigned><VariableType>4 Bytes</VariableType><Address>dzlast</Address></CheatEntry><CheatEntry><ID>3</ID><Description>"Spawned"</Description><ShowAsSigned>1</ShowAsSigned><VariableType>4 Bytes</VariableType><Address>dzsent</Address></CheatEntry><CheatEntry><ID>4</ID><Description>"Last building"</Description><DropDownList DescriptionOnly="1" DisplayValueAsItem="1">0:Idle
+1:Built
+2:Side refused
+3:Not in battle
+4:Building limit
+5:Bad building
+6:Cursor off map
+7:Session limit
+8:Busy
+9:Blocked here
+10:Sent
+</DropDownList><ShowAsSigned>1</ShowAsSigned><VariableType>4 Bytes</VariableType><Address>dzblast</Address></CheatEntry><CheatEntry><ID>5</ID><Description>"Buildings sent"</Description><ShowAsSigned>1</ShowAsSigned><VariableType>4 Bytes</VariableType><Address>dzbsent</Address></CheatEntry><CheatEntry><ID>6</ID><Description>"Last level up"</Description><DropDownList DescriptionOnly="1" DisplayValueAsItem="1">0:Idle
+1:Leveled up
+2:Nothing selected
+3:Not in battle
+4:Already at level
+5:Heroes skipped
+6:Bad level
+</DropDownList><ShowAsSigned>1</ShowAsSigned><VariableType>4 Bytes</VariableType><Address>dzllast</Address></CheatEntry><CheatEntry><ID>7</ID><Description>"Leveled"</Description><ShowAsSigned>1</ShowAsSigned><VariableType>4 Bytes</VariableType><Address>dzlcnt</Address></CheatEntry><CheatEntry><ID>8</ID><Description>"Buildings"</Description><ShowAsSigned>1</ShowAsSigned><VariableType>2 Bytes</VariableType><Address>[059603D0]+C</Address></CheatEntry><CheatEntry><ID>9</ID><Description>"My side"</Description><ShowAsSigned>1</ShowAsSigned><VariableType>4 Bytes</VariableType><Address>00709100</Address></CheatEntry><CheatEntry><ID>10</ID><Description>"Mouse X"</Description><ShowAsSigned>1</ShowAsSigned><VariableType>4 Bytes</VariableType><Address>dzmx</Address></CheatEntry><CheatEntry><ID>11</ID><Description>"Mouse Y"</Description><ShowAsSigned>1</ShowAsSigned><VariableType>4 Bytes</VariableType><Address>dzmy</Address></CheatEntry><CheatEntry><ID>12</ID><Description>"Cursor tile X"</Description><ShowAsSigned>1</ShowAsSigned><VariableType>4 Bytes</VariableType><Address>dzctx</Address></CheatEntry><CheatEntry><ID>13</ID><Description>"Cursor tile Y"</Description><ShowAsSigned>1</ShowAsSigned><VariableType>4 Bytes</VariableType><Address>dzcty</Address></CheatEntry><CheatEntry><ID>14</ID><Description>"View X"</Description><ShowAsSigned>1</ShowAsSigned><VariableType>4 Bytes</VariableType><Address>[0074C400]+232BF4</Address></CheatEntry><CheatEntry><ID>15</ID><Description>"View Y"</Description><ShowAsSigned>1</ShowAsSigned><VariableType>4 Bytes</VariableType><Address>[0074C400]+232BF8</Address></CheatEntry><CheatEntry><ID>16</ID><Description>"View W"</Description><ShowAsSigned>1</ShowAsSigned><VariableType>4 Bytes</VariableType><Address>[0074C400]+232BFC</Address></CheatEntry><CheatEntry><ID>17</ID><Description>"View H"</Description><ShowAsSigned>1</ShowAsSigned><VariableType>4 Bytes</VariableType><Address>[0074C400]+232C00</Address></CheatEntry><CheatEntry><ID>18</ID><Description>"Map W"</Description><ShowAsSigned>1</ShowAsSigned><VariableType>4 Bytes</VariableType><Address>[0074C400]+232BE4</Address></CheatEntry><CheatEntry><ID>19</ID><Description>"Map H"</Description><ShowAsSigned>1</ShowAsSigned><VariableType>4 Bytes</VariableType><Address>[0074C400]+232BE8</Address></CheatEntry><CheatEntry><ID>20</ID><Description>"Fine X"</Description><ShowAsSigned>1</ShowAsSigned><VariableType>4 Bytes</VariableType><Address>[0074C400]+232C14</Address></CheatEntry><CheatEntry><ID>21</ID><Description>"Fine Y"</Description><ShowAsSigned>1</ShowAsSigned><VariableType>4 Bytes</VariableType><Address>[0074C400]+232C18</Address></CheatEntry><CheatEntry><ID>22</ID><Description>"Screen W"</Description><ShowAsSigned>1</ShowAsSigned><VariableType>4 Bytes</VariableType><Address>[00A27D4C]+18</Address></CheatEntry><CheatEntry><ID>23</ID><Description>"Screen H"</Description><ShowAsSigned>1</ShowAsSigned><VariableType>4 Bytes</VariableType><Address>[00A27D4C]+1C</Address></CheatEntry><CheatEntry><ID>24</ID><Description>"Armies"</Description><ShowAsSigned>1</ShowAsSigned><VariableType>2 Bytes</VariableType><Address>[059603D0]+A</Address></CheatEntry><CheatEntry><ID>25</ID><Description>"Units"</Description><ShowAsSigned>1</ShowAsSigned><VariableType>2 Bytes</VariableType><Address>[059603D0]</Address></CheatEntry><CheatEntry><ID>26</ID><Description>"Battle flag"</Description><ShowAsSigned>1</ShowAsSigned><VariableType>4 Bytes</VariableType><Address>0060C368</Address></CheatEntry></CheatEntries></CheatEntry><CheatEntry><ID>48</ID><Description>"Tuning"</Description><Options moHideChildren="1"/><GroupHeader>1</GroupHeader><CheatEntries><CheatEntry><ID>27</ID><Description>"Offset X"</Description><ShowAsSigned>1</ShowAsSigned><VariableType>4 Bytes</VariableType><Address>dzoffx</Address></CheatEntry><CheatEntry><ID>28</ID><Description>"Offset Y"</Description><ShowAsSigned>1</ShowAsSigned><VariableType>4 Bytes</VariableType><Address>dzoffy</Address></CheatEntry><CheatEntry><ID>29</ID><Description>"Tile W"</Description><ShowAsSigned>1</ShowAsSigned><VariableType>4 Bytes</VariableType><Address>dztw</Address></CheatEntry><CheatEntry><ID>30</ID><Description>"Tile H"</Description><ShowAsSigned>1</ShowAsSigned><VariableType>4 Bytes</VariableType><Address>dzth</Address></CheatEntry><CheatEntry><ID>31</ID><Description>"Fine scroll"</Description><DropDownList DescriptionOnly="1" DisplayValueAsItem="1">0:Off
+1:On
+</DropDownList><ShowAsSigned>1</ShowAsSigned><VariableType>4 Bytes</VariableType><Address>dzfine</Address></CheatEntry><CheatEntry><ID>32</ID><Description>"Battle check"</Description><DropDownList DescriptionOnly="1" DisplayValueAsItem="1">0:Off
+1:On
+</DropDownList><ShowAsSigned>1</ShowAsSigned><VariableType>4 Bytes</VariableType><Address>dzguard</Address></CheatEntry><CheatEntry><ID>33</ID><Description>"Unit limit"</Description><ShowAsSigned>1</ShowAsSigned><VariableType>4 Bytes</VariableType><Address>dzcap</Address></CheatEntry><CheatEntry><ID>34</ID><Description>"Building limit"</Description><ShowAsSigned>1</ShowAsSigned><VariableType>4 Bytes</VariableType><Address>dzbcap</Address></CheatEntry></CheatEntries></CheatEntry></CheatEntries></CheatEntry>
+  </CheatEntries>
+  <UserdefinedSymbols/>
+  <Comments>Deity Zenith - Warlords Battlecry III unit and building spawner. Author: Bener Kaya.</Comments>
+</CheatTable>

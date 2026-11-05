@@ -1,0 +1,231 @@
+0	AAAR	Knight: Archon
+1	AHLX	Knight: Dancing Sword
+2	AAEG	Knight: Eagle
+3	AHGX	Knight: Inquisitor
+4	AHFX	Knight: Knight
+5	AHDX	Knight: Knight Champion
+6	AHEX	Knight: Knight Lord
+7	AHBX	Knight: Peasant
+8	AAPE	Knight: Pegasus
+9	AHMX	Knight: Squire
+10	AHKX	Knight: Swordsman
+11	ADNX	Dwarf: Ballista
+12	ASBA	Dwarf: Battering Ram
+13	ASCA	Dwarf: Catapult
+14	ADJX	Dwarf: Dwarf Berserker
+15	ADMX	Dwarf: Dwarf Crossbow
+16	ADIX	Dwarf: Dwarf Infantry
+17	ADGX	Dwarf: Dwarf Lord
+18	ADSX	Dwarf: Dwarf Runner
+19	ADBX	Dwarf: Dwarven Smith
+20	AAEG	Dwarf: Eagle
+21	AARI	Dwarf: Griffon
+22	ADLX	Dwarf: Khazrimi Guard
+23	ADOX	Dwarf: Runelord
+24	AABA	Undead: Bat
+25	ASBC	Undead: Bone Catapult
+26	AUAX	Undead: Doom Knight
+27	AAHA	Undead: Harpy
+28	AUMX	Undead: Liche
+29	AUXX	Undead: Shadow
+30	AUIX	Undead: Skeleton
+31	AUCX	Undead: Skeleton Cavalry
+32	AULX	Undead: Slayer Knight
+33	ABBX	Undead: Thrall
+34	AUGX	Undead: Vampire
+35	AUJX	Undead: Wight
+36	AUKX	Undead: Wraith
+37	AUBX	Undead: Zombie
+38	ABIX	Barbarian: Barbarian
+39	AAEG	Barbarian: Eagle
+40	AALH	Barbarian: Lightning Hawk
+41	AAPE	Barbarian: Pegasus
+42	ABGX	Barbarian: Reaver
+43	ABCX	Barbarian: Rider
+44	ABBX	Barbarian: Thrall
+45	ABDX	Barbarian: War Dog
+46	ABEX	Barbarian: Warlord
+47	AOXX	Minotaur: Basilisk
+48	AABA	Minotaur: Bat
+49	ASBA	Minotaur: Battering Ram
+50	ASCA	Minotaur: Catapult
+51	AMJX	Minotaur: Gnoll
+52	AARI	Minotaur: Griffon
+53	AMIX	Minotaur: Minotaur
+54	AMNX	Minotaur: Minotaur Axe Thrower
+55	AMGX	Minotaur: Minotaur King
+56	AMMX	Minotaur: Minotaur Shaman
+57	ACSH	Minotaur: Sheep
+58	ABBX	Minotaur: Thrall
+59	AOXX	Orc: Basilisk
+60	AABA	Orc: Bat
+61	AOGX	Orc: Giant
+62	AOSX	Orc: Goblin
+63	AOKX	Orc: Goblin Chief
+64	AONX	Orc: Goblin Shaman
+65	ASGS	Orc: Gobshooter
+66	AAHA	Orc: Harpy
+67	AOBX	Orc: Kobold
+68	AOOX	Orc: Kobold Sniper
+69	AOJX	Orc: Ogre
+70	AOIX	Orc: Orc
+71	ABBX	Orc: Thrall
+72	AOMX	Orc: Troll
+73	AOCX	Orc: Wolfrider
+74	AEAX	High Elf: Ancient Wisp
+75	AECX	High Elf: Dragon Knight
+76	AEOX	High Elf: Ice Maiden
+77	AEIX	High Elf: Iceguard
+78	AEMX	High Elf: Longbow
+79	ASSC	High Elf: Manticore
+80	AEGX	High Elf: Moonguard
+81	AENX	High Elf: Mystic
+82	AAPE	High Elf: Pegasus
+83	AAPH	High Elf: Phoenix
+84	AKKX	High Elf: Spider
+85	AEDX	High Elf: Unicorn
+86	AEBX	High Elf: Wisp
+87	AWKX	Wood Elf: Ancient Treant
+88	AEAX	Wood Elf: Ancient Wisp
+89	AWNX	Wood Elf: Druid
+90	AWGX	Wood Elf: Dryad
+91	AEEX	Wood Elf: Elven Hunter
+92	AWIX	Wood Elf: Forestguard
+93	AWMX	Wood Elf: Gladewarden
+94	AARI	Wood Elf: Griffon
+95	AAPH	Wood Elf: Phoenix
+96	AEXX	Wood Elf: Pixie
+97	AASP	Wood Elf: Sprite
+98	AWJX	Wood Elf: Treant
+99	AEBX	Wood Elf: Wisp
+100	AWCX	Wood Elf: Woodrider
+101	AEAX	Dark Elf: Ancient Wisp
+102	AKJX	Dark Elf: Assassin
+103	AKGX	Dark Elf: Blackguard
+104	AADE	Dark Elf: Daemon
+105	AKMX	Dark Elf: Dark Archer
+106	AKIX	Dark Elf: Dark Infantry
+107	AKCX	Dark Elf: Dark Rider
+108	AAHA	Dark Elf: Harpy
+109	AAIM	Dark Elf: Imp
+110	AAPH	Dark Elf: Phoenix
+111	AKLX	Dark Elf: Queen Spider
+112	AUIX	Dark Elf: Skeleton
+113	AKNX	Dark Elf: Sorceror
+114	AKOX	Dark Elf: Spider Priestess
+115	ABBX	Dark Elf: Thrall
+116	AEBX	Dark Elf: Wisp
+117	AFGX	Fey: Banshee
+118	AFMX	Fey: Faerie Dragon
+119	AFNX	Fey: Leprechaun
+120	AALH	Fey: Lightning Hawk
+121	AFBX	Fey: Oakman
+122	AFIX	Fey: Spriggan
+123	AFJX	Fey: Sylph
+124	AAGX	Dark Dwarf: Bronze Golem
+125	AABX	Dark Dwarf: Engineer
+126	AASX	Dark Dwarf: Firebomb
+127	AAMX	Dark Dwarf: Flame Cannon
+128	AANX	Dark Dwarf: Hellbore
+129	AAJX	Dark Dwarf: Iron Golem
+130	AUXX	Dark Dwarf: Shadow
+131	AAIX	Dark Dwarf: Stone Golem
+132	AUKX	Dark Dwarf: Wraith
+133	AAWY	Dark Dwarf: Wyvern
+134	AADE	Daemon: Daemon
+135	AAFB	Daemon: Firebat
+136	AAHA	Daemon: Harpy
+137	AAIM	Daemon: Imp
+138	AVCX	Daemon: Nightmare
+139	AVBX	Daemon: Quasit
+140	AVJX	Daemon: Reaper
+141	AVDX	Daemon: Salamander
+142	ACSO	Daemon: Soul
+143	AVIX	Daemon: Succubus
+144	AVGX	Daemon: Summoner
+145	APMX	Empire: Archer
+146	AHGB	Empire: Black Mage
+147	APDX	Empire: Elephant
+148	AHJX	Empire: Halberdier
+149	AHCX	Empire: Mercenary
+150	AHBX	Empire: Peasant
+151	AHIX	Empire: Pikeman
+152	AHGR	Empire: Red Mage
+153	AHGW	Empire: White Mage
+154	ALBX	Ssrathi: Chameleon
+155	AADF	Ssrathi: Dragonfly
+156	ALCX	Ssrathi: Lizard Rider
+157	ALGX	Ssrathi: Naga
+158	AAPT	Ssrathi: Pterodactyl
+159	ALIX	Ssrathi: Snakeman
+160	ALMX	Ssrathi: Snakepriest
+161	ALDX	Ssrathi: Triceratops
+162	ALEX	Ssrathi: Tyrannosaurus
+163	ARBX	Swarm: Giant Ant
+164	ARJX	Swarm: Husk
+165	ARMX	Swarm: Scarab
+166	ARIX	Swarm: Scorpion
+167	ARCX	Swarm: Scorpionman
+168	ARGX	Swarm: Scorpionpriest
+169	AAWA	Swarm: Wasp
+170	AGCY	Plaguelords: Cryohydra
+171	AGFL	Plaguelords: Eye of Flame
+172	AGGZ	Plaguelords: Gazer
+173	AGPC	Plaguelords: Ghoul
+174	AGHY	Plaguelords: Hydra
+175	AGGX	Plaguelords: Plague Priest
+176	AGPY	Plaguelords: Pyrohydra
+177	AGSL	Plaguelords: Slime
+178	AGSP	Plaguelords: Spore
+179	AUBX	Plaguelords: Zombie
+180	AAEA	Elementals: Air Elemental
+181	AAEE	Elementals: Earth Elemental
+182	AAEF	Elementals: Fire Elemental
+183	AAEW	Elementals: Water Elemental
+184	AADC	Dragons: Celestial Dragon
+185	AADR	Dragons: Dragon
+186	AADU	Dragons: Dragonliche
+187	AADW	Dragons: Frost Dragon
+188	AADB	Dragons: Storm Dragon
+189	AADG	Dragons: Swamp Dragon
+190	ATVX	Titans: Balora
+191	ATOX	Titans: Gornak Elfeater
+192	ATAX	Titans: Grond
+193	ATLX	Titans: Iriki
+194	ATWX	Titans: Ironbark
+195	ATKX	Titans: Kargoth
+196	ATDX	Titans: King Khalid
+197	ATEX	Titans: King Lunarion
+198	ATGX	Titans: Lord Antharg
+199	ATUX	Titans: Lord Bane
+200	ATRX	Titans: Lord Melkor
+201	ATHX	Titans: Sirian
+202	ATMX	Titans: Skull of Sartek
+203	ATBX	Titans: Tempest
+204	ATFX	Titans: The Forestmaster
+205	ATPX	Titans: The Lion Throne
+206	ACCA	Neutral: Camel
+207	ACCO	Neutral: Cow
+208	AAEY	Neutral: Eye of Oros
+209	ACGO	Neutral: Goose
+210	AXXX	Neutral: Guardian Skull
+211	ACPE	Neutral: Penguin
+212	ACSE	Neutral: Seal
+213	ACTU	Neutral: Turtle
+214	AHHX	Hero: Knight Hero
+215	ADHX	Hero: Dwarf Hero
+216	AUHX	Hero: Undead Hero
+217	AMHX	Hero: Barbarian Hero
+218	ABHX	Hero: Minotaur Hero
+219	AOHX	Hero: Orc Hero
+220	AEHX	Hero: High Elf Hero
+221	AWHX	Hero: Wood Elf Hero
+222	AKHX	Hero: Dark Elf Hero
+223	AFHX	Hero: Fey Hero
+224	AAHX	Hero: Dark Dwarf Hero
+225	AVHX	Hero: Daemon Hero
+226	ARHX	Hero: Swarm Hero
+227	AHH0	Hero: Good Wizard Hero
+228	AHH1	Hero: Evil Wizard Hero
+229	ALHX	Hero: Ssrathi Hero
+230	APHX	Hero: Imperial Hero
